@@ -37,6 +37,8 @@
 		var/dirtcount = 1
 		var/list/dirts = list()
 		for(var/obj/item/natural/dirtclod/D in T)
+			if(D == src)
+				continue
 			dirtcount++
 			dirts += D
 		if(dirtcount >=5)

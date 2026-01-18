@@ -513,7 +513,8 @@ GLOBAL_LIST_EMPTY(teleportlocs)
 	if(outdoors)
 		return FALSE
 	areasize = 0
-	for(var/turf/open/T in contents)
+	var/list/area_contents = contents.Copy()
+	for(var/turf/open/T in area_contents)
 		areasize++
 
 /**

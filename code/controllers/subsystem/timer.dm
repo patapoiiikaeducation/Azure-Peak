@@ -352,7 +352,7 @@ SUBSYSTEM_DEF(timer)
 	if ((timeToRun < world.time || timeToRun < SStimer.head_offset) && !(flags & TIMER_CLIENT_TIME))
 		CRASH("Invalid timer state: Timer created that would require a backtrack to run (addtimer would never let this happen): [SStimer.get_timer_debug_string(src)]")
 
-	if (callBack.object != GLOBAL_PROC && !QDESTROYING(callBack.object))
+	if (callBack.object != GLOBAL_PROC && isdatum(callBack.object) && !QDESTROYING(callBack.object))
 		LAZYADD(callBack.object.active_timers, src)
 
 	bucketJoin()
@@ -449,11 +449,13 @@ SUBSYSTEM_DEF(timer)
 
 ///Returns a string of the type of the callback for this timer
 /datum/timedevent/proc/getcallingtype()
-	. = "ERROR"
+	if (!callBack || !callBack.object)
+		return "NO_OBJECT"
 	if (callBack.object == GLOBAL_PROC)
-		. = "GLOBAL_PROC"
-	else
-		. = "[callBack.object.type]"
+		return "GLOBAL_PROC"
+	if (isdatum(callBack.object))
+		return "[callBack.object.type]"
+	return "[callBack.object]"
 
 /**
  * Create a new timer and insert it in the queue

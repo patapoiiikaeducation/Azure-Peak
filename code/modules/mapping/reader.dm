@@ -932,6 +932,8 @@ GLOBAL_LIST_EMPTY(map_model_default)
 		//	LISTASSERTLEN(area_instance.turfs_by_zlevel, crds.z, list())
 		//	old_area.turfs_to_uncontain_by_zlevel[crds.z] += crds
 		//	area_instance.turfs_by_zlevel[crds.z] += crds
+		if(!islist(area_instance.contents))
+			area_instance.contents = list()
 		area_instance.contents.Add(crds)
 
 		if(GLOB.use_preloader)
