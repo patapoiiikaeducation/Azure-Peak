@@ -197,10 +197,16 @@
 		var/mob/living/carbon/human/examiner = user
 		if(istype(examiner) && examiner.mind?.has_antag_datum(/datum/antagonist/vampire))
 			examiner.add_stress(/datum/stressevent/dawnwalker_vampire_disgust)
-			to_chat(examiner, span_warning("Ах, какое это грязное существо! Оно оскорбляет мой вид!"))
-			if(examiner.has_status_effect(/datum/status_effect/mood/vbad) && prob(5))
-				examiner.visible_message(span_danger("[examiner] bellows, \"[H.real_name], ты - грязная тварь!\""), span_danger("[H.real_name], ты - грязная тварь!"))
-				examiner.emote("scream", forced = TRUE)
+			addtimer(CALLBACK(src, PROC_REF(handle_vampire_examine_reaction), examiner, H), 1)
+
+/datum/component/dawnwalker/proc/handle_vampire_examine_reaction(mob/living/carbon/human/examiner, mob/living/carbon/human/target)
+	if(!istype(examiner) || !istype(target))
+		return
+	to_chat(examiner, span_boldwarning("Ah, what a filthy creature! It offends my kind!"))
+	if(prob(95))
+		examiner.visible_message(span_boldwarning("[examiner] bellows, \"[target.real_name], you filthy wretch!\""), span_boldwarning("[target.real_name], you filthy wretch!"))
+		examiner.emote("scream", forced = TRUE)
+		examiner.playsound_local(examiner, pick('sound/vo/male/gen/scream (1).ogg','sound/vo/male/gen/scream (2).ogg'), 125, TRUE)
 
 /datum/component/dawnwalker/proc/should_apply_silver_debuff(mob/living/carbon/human/H)
 	if(!should_apply_effects(H))
