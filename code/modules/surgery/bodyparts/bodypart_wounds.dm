@@ -186,6 +186,8 @@
 						CAR.ejaculate()
 
 			return crit_attempt
+	if(HAS_TRAIT(owner, TRAIT_DAWNWALKER) && istype(weapon) && weapon?.is_silver)
+		owner.apply_status_effect(/datum/status_effect/debuff/dawnwalker_silver)
 	if(ishuman(owner))
 		var/mob/living/carbon/human/human_owner = owner
 		human_owner.hud_used?.stressies?.flick_pain(FALSE)

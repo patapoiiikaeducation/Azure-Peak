@@ -27,6 +27,25 @@
 	ADD_TRAIT(character, TRAIT_BREADY, "[type]")
 	character.change_stat(STATKEY_CON, 2)
 
+/datum/special_trait/dawnwalker
+	name = "Dawnwalker"
+	greet_text = span_warning("I walk as a dawnwalker, living yet cursed. Blood steadies me, silver weakens me, and miracles scald my flesh.")
+	req_text = "Living races only."
+	weight = 20
+
+/datum/special_trait/dawnwalker/can_apply(mob/living/carbon/human/character)
+	if(!character?.dna?.species)
+		return FALSE
+	if(NOBLOOD in character.dna.species.species_traits)
+		return FALSE
+	return TRUE
+
+/datum/special_trait/dawnwalker/on_apply(mob/living/carbon/human/character, silent)
+	ADD_TRAIT(character, TRAIT_DAWNWALKER, "[type]")
+	character.maxbloodpool = 250
+	character.set_bloodpool(250)
+	character.AddComponent(/datum/component/dawnwalker)
+
 /datum/special_trait/curseofcain
 	name = "Flawed Immortality"
 	greet_text = span_notice("I feel like I don't need to eat anymore, and my veins feel empty... Is this normal?")
