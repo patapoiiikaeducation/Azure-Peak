@@ -1,3 +1,39 @@
+/datum/coven/dawnwalker_bloodheal
+	name = "Dawnwalker Bloodheal"
+	desc = "Bloodbound mending."
+	icon_state = "bloodheal"
+	power_type = /datum/coven_power/dawnwalker_bloodheal
+	max_level = 1
+	clan_restricted = FALSE
+
+/datum/coven/dawnwalker_fear
+	name = "Dawnwalker Rage"
+	desc = "A surge of dread and speed."
+	icon_state = "daimonion"
+	power_type = /datum/coven_power/dawnwalker_fear
+	max_level = 1
+	clan_restricted = FALSE
+
+/datum/coven_power/dawnwalker_bloodheal
+	parent_type = /datum/coven_power/bloodheal/one
+	name = "Bloodheal"
+	desc = "Spend vitae to mend minor wounds."
+	vitae_cost = 15
+
+/datum/coven_power/dawnwalker_bloodheal/can_afford()
+	var/usable_vitae = owner?.bloodpool - 3000
+	return usable_vitae >= vitae_cost
+
+/datum/coven_power/dawnwalker_fear
+	parent_type = /datum/coven_power/demonic/fear_of_the_void_below
+	name = "Fear of the Void"
+	desc = "Short burst of speed and resilience."
+	vitae_cost = 100
+
+/datum/coven_power/dawnwalker_fear/can_afford()
+	var/usable_vitae = owner?.bloodpool - 3000
+	return usable_vitae >= vitae_cost
+
 /datum/action/dawnwalker_power
 	name = "Dawnwalker Power"
 	desc = "A bloodbound trick."
@@ -5,103 +41,58 @@
 	button_icon = 'icons/mob/actions/vampspells.dmi'
 	icon_icon = 'icons/mob/actions/vampspells.dmi'
 	background_icon_state = "spell"
+	var/datum/coven/discipline
+	var/datum/coven_power/power
+	var/discipline_type = /datum/coven
 
-	var/cooldown_length = 0
-	var/vitae_cost = 0
-	var/cooldown_end = 0
-	var/base_bloodpool = 3000
+/datum/action/dawnwalker_power/New(Target)
+	. = ..()
+	discipline = new discipline_type(1)
+	power = discipline.current_power
+	name = power?.name || name
+	desc = power?.desc || desc
+	button_icon_state = discipline?.icon_state
 
-/datum/action/dawnwalker_power/proc/can_activate()
-	if(!owner)
-		return FALSE
-	if(!HAS_TRAIT(owner, TRAIT_DAWNWALKER))
-		return FALSE
-	if(cooldown_end > world.time)
-		var/time_left = round((cooldown_end - world.time) / 1 SECONDS, 1)
-		to_chat(owner, span_warning("[name] is not ready for another [time_left] seconds."))
-		return FALSE
-	var/usable_vitae = owner.bloodpool - base_bloodpool
-	if(vitae_cost > 0 && usable_vitae < vitae_cost)
-		to_chat(owner, span_warning("I lack the vitae to use [name]."))
-		return FALSE
-	return TRUE
+/datum/action/dawnwalker_power/Destroy()
+	QDEL_NULL(discipline)
+	power = null
+	return ..()
+
+/datum/action/dawnwalker_power/Grant(mob/M)
+	. = ..()
+	if(!power || !discipline)
+		return
+	discipline.owner = M
+	power.set_owner(M)
 
 /datum/action/dawnwalker_power/Trigger()
 	if(!..())
 		return FALSE
-	if(!can_activate())
+	if(!power || !HAS_TRAIT(owner, TRAIT_DAWNWALKER))
 		return FALSE
-	if(!activate())
+	if(!power.try_activate())
 		return FALSE
-	if(vitae_cost > 0)
-		owner.adjust_bloodpool(-vitae_cost, FALSE)
-	if(cooldown_length)
-		cooldown_end = world.time + cooldown_length
-		button?.update_maptext(round(cooldown_length))
-		owner?.update_action_buttons()
-	return TRUE
-
-/datum/action/dawnwalker_power/proc/activate()
+	UpdateButtonIcon(TRUE)
 	return TRUE
 
 /datum/action/dawnwalker_power/IsAvailable()
 	if(!..())
 		return FALSE
-	if(cooldown_end > world.time)
+	if(!power || !HAS_TRAIT(owner, TRAIT_DAWNWALKER))
 		return FALSE
-	if(!HAS_TRAIT(owner, TRAIT_DAWNWALKER))
-		return FALSE
-	return TRUE
+	return power.can_activate_untargeted()
 
 /datum/action/dawnwalker_power/UpdateButtonIcon(status_only = FALSE, force = FALSE)
+	name = power?.name || name
+	desc = power?.desc || desc
+	button_icon_state = discipline?.icon_state || button_icon_state
 	. = ..()
-	if(cooldown_end > world.time)
-		button?.update_maptext(round(cooldown_end - world.time))
+	var/cooldown_left = power?.get_cooldown()
+	if(cooldown_left)
+		button?.update_maptext(round(cooldown_left))
 
 /datum/action/dawnwalker_power/bloodheal
-	name = "Bloodheal"
-	desc = "Spend vitae to mend minor wounds."
-	button_icon_state = "bloodheal"
-	cooldown_length = 30 SECONDS
-	vitae_cost = 10
-
-/datum/action/dawnwalker_power/bloodheal/activate()
-	owner.adjustBruteLoss(-3.8, 0)
-	owner.adjustFireLoss(-3.8, 0)
-	owner.adjustOxyLoss(-3.8, 0)
-	owner.adjustToxLoss(-3.8, 0)
-	owner.adjustOrganLoss(ORGAN_SLOT_BRAIN, -3.8)
-	owner.adjustCloneLoss(-3.8, 0)
-	owner.heal_wounds(5)
-	to_chat(owner, span_notice("My vitae knits my flesh back together."))
-	return TRUE
+	discipline_type = /datum/coven/dawnwalker_bloodheal
 
 /datum/action/dawnwalker_power/rage
-	name = "Fear of the Void"
-	desc = "Ignite a brief, burning frenzy."
-	button_icon_state = "daimonion"
-	cooldown_length = 1 MINUTES
-	vitae_cost = 100
-	var/duration_length = 30 SECONDS
-
-/datum/action/dawnwalker_power/rage/can_activate()
-	if(!..())
-		return FALSE
-	if(owner.has_status_effect(/datum/status_effect/buff/fotv))
-		to_chat(owner, span_warning("My rage already burns hot."))
-		return FALSE
-	return TRUE
-
-/datum/action/dawnwalker_power/rage/activate()
-	owner.add_movespeed_modifier(MOVESPEED_ID_FOTV, multiplicative_slowdown = -0.2)
-	owner.apply_status_effect(/datum/status_effect/buff/fotv)
-	playsound(owner, 'sound/misc/portal_op.ogg', 40, TRUE)
-	addtimer(CALLBACK(src, PROC_REF(end_rage), owner), duration_length)
-	return TRUE
-
-/datum/action/dawnwalker_power/rage/proc/end_rage(mob/living/carbon/human/target)
-	if(!istype(target))
-		return
-	target.remove_movespeed_modifier(MOVESPEED_ID_FOTV)
-	target.remove_status_effect(/datum/status_effect/buff/fotv)
-	playsound(target, 'sound/misc/portalactivate.ogg', 40, TRUE)
+	discipline_type = /datum/coven/dawnwalker_fear
