@@ -13,6 +13,6 @@
 
 /datum/special_trait/dawnwalker/on_apply(mob/living/carbon/human/character, silent)
 	ADD_TRAIT(character, TRAIT_DAWNWALKER, "[type]")
-	character.maxbloodpool = 3250
-	character.set_bloodpool(3250)
+	character.maxbloodpool = 250
+	character.set_bloodpool(250)
 	character.AddComponent(/datum/component/dawnwalker)

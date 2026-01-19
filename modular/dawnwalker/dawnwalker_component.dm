@@ -6,7 +6,6 @@
 	var/list/datum/coven/dawnwalker_covens
 	var/list/datum/action/coven/coven_actions
 	var/last_frenzy_check = 0
-	var/base_bloodpool = 3000
 	var/max_vitae = 250
 	var/dawnwalker_vitae = 0
 
@@ -57,7 +56,7 @@
 /datum/component/dawnwalker/proc/update_bloodpool_display(mob/living/carbon/human/H)
 	if(!H)
 		return
-	H.set_bloodpool(base_bloodpool + dawnwalker_vitae)
+	H.set_bloodpool(dawnwalker_vitae)
 
 /datum/component/dawnwalker/proc/adjust_vitae(mob/living/carbon/human/H, amount)
 	dawnwalker_vitae = CLAMP(dawnwalker_vitae + amount, 0, max_vitae)

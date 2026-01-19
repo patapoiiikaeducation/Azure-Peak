@@ -10,8 +10,8 @@
 	if(NOBLOOD in recipient.dna.species.species_traits)
 		to_chat(recipient, span_warning("My bloodless body cannot take this curse."))
 		return
-	recipient.maxbloodpool = 3250
-	recipient.set_bloodpool(3250)
+	recipient.maxbloodpool = 250
+	recipient.set_bloodpool(250)
 	recipient.AddComponent(/datum/component/dawnwalker)
 
 /datum/virtue/utility/dawnwalker/handle_traits(mob/living/carbon/human/recipient)
