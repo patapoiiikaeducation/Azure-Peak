@@ -3,7 +3,6 @@
 	var/last_sun_tick = 0
 	var/last_miracle_warning = 0
 	var/in_sunlight = FALSE
-	var/atom/movable/screen/bloodpool/owned_bloodpool
 
 /datum/component/dawnwalker/Initialize()
 	if(!isliving(parent))
@@ -19,9 +18,9 @@
 
 /datum/component/dawnwalker/Destroy()
 	var/mob/living/carbon/human/H = parent
-	if(istype(H) && owned_bloodpool && H.hud_used?.bloodpool == owned_bloodpool)
-		H.hud_used.shutdown_bloodpool()
-	owned_bloodpool = null
+	if(istype(H) && H.hud_used?.bloodpool)
+		if(!H.clan && !H.mind?.has_antag_datum(/datum/antagonist/vampire) && !H.devotion)
+			H.hud_used.shutdown_bloodpool()
 	return ..()
 
 /datum/component/dawnwalker/proc/initialize_bloodpool_hud(mob/living/carbon/human/H)
@@ -31,7 +30,6 @@
 		return
 	H.hud_used.initialize_bloodpool()
 	H.hud_used.bloodpool.set_fill_color("#510000")
-	owned_bloodpool = H.hud_used.bloodpool
 
 /datum/component/dawnwalker/proc/should_apply_effects(mob/living/carbon/human/H)
 	if(!HAS_TRAIT(H, TRAIT_DAWNWALKER))
