@@ -23,8 +23,15 @@
 	vitae_cost = 15
 
 /datum/coven_power/bloodheal/dawnwalker/can_afford()
-	var/usable_vitae = owner?.bloodpool - 3000
-	return usable_vitae >= vitae_cost
+	var/datum/component/dawnwalker/component = owner?.GetComponent(/datum/component/dawnwalker)
+	return component?.dawnwalker_vitae >= vitae_cost
+
+/datum/coven_power/bloodheal/dawnwalker/spend_resources()
+	if(!can_afford())
+		return FALSE
+	var/datum/component/dawnwalker/component = owner?.GetComponent(/datum/component/dawnwalker)
+	component?.adjust_vitae(owner, -vitae_cost)
+	return TRUE
 
 /datum/coven_power/demonic/fear_of_the_void_below/dawnwalker
 	parent_type = /datum/coven_power/demonic/fear_of_the_void_below
@@ -33,5 +40,12 @@
 	vitae_cost = 100
 
 /datum/coven_power/demonic/fear_of_the_void_below/dawnwalker/can_afford()
-	var/usable_vitae = owner?.bloodpool - 3000
-	return usable_vitae >= vitae_cost
+	var/datum/component/dawnwalker/component = owner?.GetComponent(/datum/component/dawnwalker)
+	return component?.dawnwalker_vitae >= vitae_cost
+
+/datum/coven_power/demonic/fear_of_the_void_below/dawnwalker/spend_resources()
+	if(!can_afford())
+		return FALSE
+	var/datum/component/dawnwalker/component = owner?.GetComponent(/datum/component/dawnwalker)
+	component?.adjust_vitae(owner, -vitae_cost)
+	return TRUE

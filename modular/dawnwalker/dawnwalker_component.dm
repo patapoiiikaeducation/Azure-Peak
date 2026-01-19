@@ -7,12 +7,15 @@
 	var/list/datum/action/coven/coven_actions
 	var/last_frenzy_check = 0
 	var/base_bloodpool = 3000
+	var/max_vitae = 250
+	var/dawnwalker_vitae = 0
 
 /datum/component/dawnwalker/Initialize()
 	if(!isliving(parent))
 		return COMPONENT_INCOMPATIBLE
 	var/mob/living/carbon/human/H = parent
 	if(istype(H))
+		initialize_vitae(H)
 		initialize_bloodpool_hud(H)
 		ensure_powers(H)
 	RegisterSignal(parent, COMSIG_HUMAN_LIFE, PROC_REF(handle_life))
@@ -20,6 +23,7 @@
 	RegisterSignal(parent, COMSIG_PARENT_EXAMINE, PROC_REF(on_examine))
 	RegisterSignal(parent, COMSIG_ITEM_ATTACK_EFFECT, PROC_REF(on_item_attack_effect))
 	RegisterSignal(parent, COMSIG_ITEM_EQUIPPED, PROC_REF(on_item_equipped))
+	RegisterSignal(parent, COMSIG_LIVING_DRINKED_LIMB_BLOOD, PROC_REF(on_drink_blood))
 	return ..()
 
 /datum/component/dawnwalker/Destroy()
@@ -43,13 +47,28 @@
 		return
 	H.hud_used.initialize_bloodpool()
 	H.hud_used.bloodpool.set_fill_color("#510000")
-	H.set_bloodpool(H.bloodpool)
+	update_bloodpool_display(H)
+
+/datum/component/dawnwalker/proc/initialize_vitae(mob/living/carbon/human/H)
+	if(dawnwalker_vitae <= 0)
+		dawnwalker_vitae = max_vitae
+	update_bloodpool_display(H)
+
+/datum/component/dawnwalker/proc/update_bloodpool_display(mob/living/carbon/human/H)
+	if(!H)
+		return
+	H.set_bloodpool(base_bloodpool + dawnwalker_vitae)
+
+/datum/component/dawnwalker/proc/adjust_vitae(mob/living/carbon/human/H, amount)
+	dawnwalker_vitae = CLAMP(dawnwalker_vitae + amount, 0, max_vitae)
+	update_bloodpool_display(H)
 
 /datum/component/dawnwalker/proc/ensure_powers(mob/living/carbon/human/H)
 	if(!should_apply_effects(H))
 		return
 	if(length(coven_actions))
 		return
+	initialize_vitae(H)
 	var/datum/coven/dawnwalker_bloodheal/bloodheal = new()
 	var/datum/coven/dawnwalker_fear/fear = new()
 	dawnwalker_covens = list(bloodheal, fear)
@@ -96,13 +115,13 @@
 	if(world.time < last_blood_heal + 8 SECONDS)
 		return
 	last_blood_heal = world.time
-	if(H.bloodpool <= base_bloodpool)
+	if(dawnwalker_vitae <= 0)
 		return
 	var/total_damage = H.getBruteLoss() + H.getFireLoss()
 	if(total_damage <= 0)
 		return
 	H.heal_overall_damage(1, 1)
-	H.adjust_bloodpool(-1, FALSE)
+	adjust_vitae(H, -1)
 
 /datum/component/dawnwalker/proc/handle_sunlight(mob/living/carbon/human/H)
 	if(world.time < last_sun_tick + 2 SECONDS)
@@ -121,7 +140,7 @@
 	if(hour < 8 || hour > 16)
 		in_sunlight = FALSE
 		return
-	if(H.bloodpool >= base_bloodpool + 100)
+	if(dawnwalker_vitae >= 100)
 		in_sunlight = FALSE
 		return
 	if(!in_sunlight)
@@ -136,8 +155,8 @@
 			to_chat(H, span_userdanger("The sun rends my raging flesh apart!"))
 	else
 		H.fire_act(1, 2)
-	if(H.bloodpool > base_bloodpool)
-		H.adjust_bloodpool(-1, FALSE)
+	if(dawnwalker_vitae > 0)
+		adjust_vitae(H, -1)
 
 /datum/component/dawnwalker/proc/on_miracle_heal(datum/source, healing_on_tick, healing_datum)
 	var/mob/living/carbon/human/H = parent
@@ -151,14 +170,21 @@
 		to_chat(H, span_warning("The miracle stings, turning my flesh to ash."))
 
 /datum/component/dawnwalker/proc/handle_low_vitae_frenzy(mob/living/carbon/human/H)
-	var/usable_vitae = H.bloodpool - base_bloodpool
-	if(usable_vitae >= 50)
+	if(dawnwalker_vitae >= 50)
 		return
 	if(last_frenzy_check + 5 MINUTES > world.time)
 		return
 	if(prob(9))
 		last_frenzy_check = world.time
 		H.rollfrenzy()
+
+/datum/component/dawnwalker/proc/on_drink_blood(datum/source, mob/living/carbon/victim)
+	var/mob/living/carbon/human/H = parent
+	if(!istype(H))
+		return
+	if(!should_apply_effects(H))
+		return
+	adjust_vitae(H, 25)
 
 /datum/component/dawnwalker/proc/on_examine(datum/source, mob/user, list/examine_list)
 	if(!isliving(user))

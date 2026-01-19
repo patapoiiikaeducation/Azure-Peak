@@ -5,7 +5,8 @@
 	..()
 	if(mind && HAS_TRAIT(src, TRAIT_DAWNWALKER))
 		if(statpanel("Stats"))
-			stat("Vitae:", bloodpool)
+			var/datum/component/dawnwalker/component = GetComponent(/datum/component/dawnwalker)
+			stat("Vitae:", component?.dawnwalker_vitae)
 	return
 
 /mob/living/carbon/human/verb/lick_blood()
@@ -43,6 +44,7 @@
 	if(!consumed)
 		to_chat(src, span_warning("There's no blood here to lick."))
 		return
-	adjust_bloodpool(consumed)
+	var/datum/component/dawnwalker/component = GetComponent(/datum/component/dawnwalker)
+	component?.adjust_vitae(src, consumed)
 	add_stress(/datum/stressevent/bloodlick)
 	to_chat(src, span_notice("I lick the blood from the ground."))
