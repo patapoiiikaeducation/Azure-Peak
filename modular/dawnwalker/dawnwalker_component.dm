@@ -106,9 +106,18 @@
 /datum/component/dawnwalker/proc/on_examine(datum/source, mob/user, list/examine_list)
 	if(!isliving(user))
 		return
-	if(HAS_TRAIT(parent, TRAIT_DAWNWALKER) && user != parent)
+	var/mob/living/carbon/human/H = parent
+	if(!istype(H))
+		return
+	if(HAS_TRAIT(H, TRAIT_DAWNWALKER) && user != H)
 		if(!HAS_TRAIT(user, TRAIT_DAWNWALKER))
 			user.add_stress(/datum/stressevent/dawnwalker_disgust)
+		if(user.clan || user.mind?.has_antag_datum(/datum/antagonist/vampire))
+			user.add_stress(/datum/stressevent/dawnwalker_vampire_disgust)
+			to_chat(user, span_warning("Ах, какое это грязное существо! Оно оскорбляет мой вид!"))
+			if(user.has_status_effect(/datum/status_effect/mood/vbad) && prob(5))
+				user.visible_message(span_danger("[user] bellows, \"[H.real_name], ты - грязная тварь!\""), span_danger("[H.real_name], ты - грязная тварь!"))
+				user.emote("scream", forced = TRUE)
 
 /datum/component/dawnwalker/proc/should_apply_silver_debuff(mob/living/carbon/human/H)
 	if(!should_apply_effects(H))
