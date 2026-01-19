@@ -204,7 +204,7 @@
 		return
 	to_chat(examiner, span_boldwarning("Ah, what a filthy creature! It offends my kind!"))
 	if(prob(95))
-		examiner.visible_message(span_boldwarning("[examiner] bellows, \"[target.real_name], you filthy wretch!\""), span_boldwarning("[target.real_name], you filthy wretch!"))
+		examiner.say("[target.real_name], you filthy wretch!!!")
 		examiner.emote("scream", forced = TRUE)
 		examiner.playsound_local(examiner, pick('sound/vo/male/gen/scream (1).ogg','sound/vo/male/gen/scream (2).ogg'), 125, TRUE)
 
