@@ -3,5 +3,6 @@
 #include "dawnwalker_buffs.dm"
 #include "dawnwalker_debuffs.dm"
 #include "dawnwalker_stress.dm"
+#include "dawnwalker_powers.dm"
 #include "dawnwalker_human.dm"
 #include "dawnwalker_virtue.dm"

@@ -3,6 +3,7 @@
 	var/last_sun_tick = 0
 	var/last_miracle_warning = 0
 	var/in_sunlight = FALSE
+	var/list/datum/action/dawnwalker_power/actions
 
 /datum/component/dawnwalker/Initialize()
 	if(!isliving(parent))
@@ -10,6 +11,7 @@
 	var/mob/living/carbon/human/H = parent
 	if(istype(H))
 		initialize_bloodpool_hud(H)
+		ensure_powers(H)
 	RegisterSignal(parent, COMSIG_HUMAN_LIFE, PROC_REF(handle_life))
 	RegisterSignal(parent, COMSIG_LIVING_MIRACLE_HEAL_APPLY, PROC_REF(on_miracle_heal))
 	RegisterSignal(parent, COMSIG_PARENT_EXAMINE, PROC_REF(on_examine))
@@ -22,6 +24,10 @@
 	if(istype(H) && H.hud_used?.bloodpool)
 		if(!H.clan && !H.mind?.has_antag_datum(/datum/antagonist/vampire) && !H.devotion)
 			H.hud_used.shutdown_bloodpool()
+	if(length(actions))
+		for(var/datum/action/dawnwalker_power/power_action as anything in actions)
+			power_action.Remove(H)
+		actions = null
 	return ..()
 
 /datum/component/dawnwalker/proc/initialize_bloodpool_hud(mob/living/carbon/human/H)
@@ -32,6 +38,18 @@
 	H.hud_used.initialize_bloodpool()
 	H.hud_used.bloodpool.set_fill_color("#510000")
 	H.set_bloodpool(H.bloodpool)
+
+/datum/component/dawnwalker/proc/ensure_powers(mob/living/carbon/human/H)
+	if(!should_apply_effects(H))
+		return
+	if(length(actions))
+		return
+	actions = list(
+		new /datum/action/dawnwalker_power/bloodheal(),
+		new /datum/action/dawnwalker_power/rage()
+	)
+	for(var/datum/action/dawnwalker_power/power_action as anything in actions)
+		power_action.Grant(H)
 
 /datum/component/dawnwalker/proc/should_apply_effects(mob/living/carbon/human/H)
 	if(!HAS_TRAIT(H, TRAIT_DAWNWALKER))
@@ -47,8 +65,13 @@
 	if(!istype(H) || H.stat == DEAD || H.advsetup)
 		return
 	if(!should_apply_effects(H))
+		if(length(actions))
+			for(var/datum/action/dawnwalker_power/power_action as anything in actions)
+				power_action.Remove(H)
+			actions = null
 		return
 	initialize_bloodpool_hud(H)
+	ensure_powers(H)
 	H.handle_bloodpool_effects()
 	handle_blood_heal(H)
 	handle_sunlight(H)
