@@ -4,6 +4,8 @@
 	var/last_miracle_warning = 0
 	var/in_sunlight = FALSE
 	var/list/datum/action/dawnwalker_power/actions
+	var/last_frenzy_check = 0
+	var/base_bloodpool = 3000
 
 /datum/component/dawnwalker/Initialize()
 	if(!isliving(parent))
@@ -73,6 +75,7 @@
 	initialize_bloodpool_hud(H)
 	ensure_powers(H)
 	H.handle_bloodpool_effects()
+	handle_low_vitae_frenzy(H)
 	handle_blood_heal(H)
 	handle_sunlight(H)
 
@@ -80,7 +83,7 @@
 	if(world.time < last_blood_heal + 8 SECONDS)
 		return
 	last_blood_heal = world.time
-	if(H.bloodpool <= 0)
+	if(H.bloodpool <= base_bloodpool)
 		return
 	var/total_damage = H.getBruteLoss() + H.getFireLoss()
 	if(total_damage <= 0)
@@ -105,15 +108,23 @@
 	if(hour < 8 || hour > 16)
 		in_sunlight = FALSE
 		return
-	if(H.bloodpool >= 100)
+	if(H.bloodpool >= base_bloodpool + 100)
 		in_sunlight = FALSE
 		return
 	if(!in_sunlight)
 		to_chat(H, span_danger("Hunger boils in my veins as the sun sears me!"))
 		in_sunlight = TRUE
 	H.apply_status_effect(/datum/status_effect/buff/dawnwalker_rage)
-	H.fire_act(1, 2)
-	H.adjust_bloodpool(-1, FALSE)
+	if(H.has_status_effect(/datum/status_effect/buff/fotv))
+		H.fire_act(6, 10)
+		H.adjustFireLoss(15, 0)
+		if(prob(20))
+			H.adjustFireLoss(60, 0)
+			to_chat(H, span_userdanger("The sun rends my raging flesh apart!"))
+	else
+		H.fire_act(1, 2)
+	if(H.bloodpool > base_bloodpool)
+		H.adjust_bloodpool(-1, FALSE)
 
 /datum/component/dawnwalker/proc/on_miracle_heal(datum/source, healing_on_tick, healing_datum)
 	var/mob/living/carbon/human/H = parent
@@ -125,6 +136,16 @@
 	if(last_miracle_warning + 10 SECONDS < world.time)
 		last_miracle_warning = world.time
 		to_chat(H, span_warning("The miracle stings, turning my flesh to ash."))
+
+/datum/component/dawnwalker/proc/handle_low_vitae_frenzy(mob/living/carbon/human/H)
+	var/usable_vitae = H.bloodpool - base_bloodpool
+	if(usable_vitae >= 50)
+		return
+	if(last_frenzy_check + 5 MINUTES > world.time)
+		return
+	if(prob(9))
+		last_frenzy_check = world.time
+		H.rollfrenzy()
 
 /datum/component/dawnwalker/proc/on_examine(datum/source, mob/user, list/examine_list)
 	if(!isliving(user))

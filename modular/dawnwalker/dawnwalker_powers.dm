@@ -9,6 +9,7 @@
 	var/cooldown_length = 0
 	var/vitae_cost = 0
 	var/cooldown_end = 0
+	var/base_bloodpool = 3000
 
 /datum/action/dawnwalker_power/proc/can_activate()
 	if(!owner)
@@ -19,7 +20,8 @@
 		var/time_left = round((cooldown_end - world.time) / 1 SECONDS, 1)
 		to_chat(owner, span_warning("[name] is not ready for another [time_left] seconds."))
 		return FALSE
-	if(vitae_cost > 0 && !owner.has_bloodpool_cost(vitae_cost))
+	var/usable_vitae = owner.bloodpool - base_bloodpool
+	if(vitae_cost > 0 && usable_vitae < vitae_cost)
 		to_chat(owner, span_warning("I lack the vitae to use [name]."))
 		return FALSE
 	return TRUE
