@@ -326,11 +326,6 @@
 	desc = span_red("Their face is unbearable!")
 	timer = 3 MINUTES
 
-/datum/stressevent/dawnwalker_disgust
-	stressadd = 3
-	desc = span_red("Their blood reeks of deathless hunger.")
-	timer = 3 MINUTES
-
 /datum/stressevent/leprosy
 	stressadd = 1
 	desc = span_red("A disgusting leper. Better keep my distance.")
@@ -340,11 +335,6 @@
 	stressadd = 2
 	desc = span_red("Their face is.. wrong!")
 	timer = 3 MINUTES
-
-/datum/stressevent/bloodlick
-	stressadd = 2
-	desc = span_red("I stoop so low to lick blood from the ground.")
-	timer = 2 MINUTES
 
 /datum/stressevent/syoncalamity
 	stressadd = 15
