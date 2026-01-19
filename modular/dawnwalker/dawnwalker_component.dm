@@ -9,6 +9,8 @@
 		return COMPONENT_INCOMPATIBLE
 	RegisterSignal(parent, COMSIG_HUMAN_LIFE, PROC_REF(handle_life))
 	RegisterSignal(parent, COMSIG_LIVING_MIRACLE_HEAL_APPLY, PROC_REF(on_miracle_heal))
+	RegisterSignal(parent, COMSIG_PARENT_EXAMINE, PROC_REF(on_examine))
+	RegisterSignal(parent, COMSIG_MOB_ITEM_BEING_ATTACKED, PROC_REF(on_item_attacked))
 	return ..()
 
 /datum/component/dawnwalker/proc/handle_life(mob/living/source)
@@ -65,3 +67,16 @@
 	if(last_miracle_warning + 10 SECONDS < world.time)
 		last_miracle_warning = world.time
 		to_chat(H, span_warning("The miracle stings, turning my flesh to ash."))
+
+/datum/component/dawnwalker/proc/on_examine(datum/source, mob/user, list/examine_list)
+	if(!isliving(user))
+		return
+	if(HAS_TRAIT(parent, TRAIT_DAWNWALKER) && user != parent)
+		if(!HAS_TRAIT(user, TRAIT_DAWNWALKER))
+			user.add_stress(/datum/stressevent/dawnwalker_disgust)
+
+/datum/component/dawnwalker/proc/on_item_attacked(datum/source, mob/living/target, mob/living/user, obj/item/weapon)
+	if(!istype(target, /mob/living))
+		return
+	if(HAS_TRAIT(target, TRAIT_DAWNWALKER) && istype(weapon) && weapon?.is_silver)
+		target.apply_status_effect(/datum/status_effect/debuff/dawnwalker_silver)

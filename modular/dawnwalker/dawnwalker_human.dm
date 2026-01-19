@@ -1,12 +1,6 @@
 /mob/living/carbon/human
 	var/last_bloodlick_use = 0
 
-/mob/living/carbon/human/proc/on_examine_face(mob/living/carbon/human/user)
-	. = ..()
-	if(HAS_TRAIT(src, TRAIT_DAWNWALKER) && user != src)
-		if(!HAS_TRAIT(user, TRAIT_DAWNWALKER))
-			user.add_stress(/datum/stressevent/dawnwalker_disgust)
-
 /mob/living/carbon/human/verb/lick_blood()
 	set name = "Lick Blood"
 	set desc = "Lick blood from the ground to steady your hunger."

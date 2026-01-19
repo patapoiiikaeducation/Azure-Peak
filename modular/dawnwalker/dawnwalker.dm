@@ -4,4 +4,3 @@
 #include "dawnwalker_debuffs.dm"
 #include "dawnwalker_stress.dm"
 #include "dawnwalker_human.dm"
-#include "dawnwalker_bodypart.dm"
