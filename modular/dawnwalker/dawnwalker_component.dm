@@ -3,7 +3,8 @@
 	var/last_sun_tick = 0
 	var/last_miracle_warning = 0
 	var/in_sunlight = FALSE
-	var/list/datum/action/dawnwalker_power/actions
+	var/list/datum/coven/dawnwalker_covens
+	var/list/datum/action/coven/coven_actions
 	var/last_frenzy_check = 0
 	var/base_bloodpool = 3000
 
@@ -26,10 +27,13 @@
 	if(istype(H) && H.hud_used?.bloodpool)
 		if(!H.clan && !H.mind?.has_antag_datum(/datum/antagonist/vampire) && !H.devotion)
 			H.hud_used.shutdown_bloodpool()
-	if(length(actions))
-		for(var/datum/action/dawnwalker_power/power_action as anything in actions)
-			power_action.Remove(H)
-		actions = null
+	if(length(coven_actions))
+		for(var/datum/action/coven/coven_action as anything in coven_actions)
+			coven_action.Remove(H)
+		coven_actions = null
+	if(length(dawnwalker_covens))
+		QDEL_LIST(dawnwalker_covens)
+		dawnwalker_covens = null
 	return ..()
 
 /datum/component/dawnwalker/proc/initialize_bloodpool_hud(mob/living/carbon/human/H)
@@ -44,14 +48,18 @@
 /datum/component/dawnwalker/proc/ensure_powers(mob/living/carbon/human/H)
 	if(!should_apply_effects(H))
 		return
-	if(length(actions))
+	if(length(coven_actions))
 		return
-	actions = list(
-		new /datum/action/dawnwalker_power/bloodheal(),
-		new /datum/action/dawnwalker_power/rage()
-	)
-	for(var/datum/action/dawnwalker_power/power_action as anything in actions)
-		power_action.Grant(H)
+	var/datum/coven/dawnwalker_bloodheal/bloodheal = new()
+	var/datum/coven/dawnwalker_fear/fear = new()
+	dawnwalker_covens = list(bloodheal, fear)
+	coven_actions = list()
+	for(var/datum/coven/coven as anything in dawnwalker_covens)
+		coven.initialize_powers_for_level(coven.max_level)
+		LAZYADD(H.covens, coven)
+		var/datum/action/coven/coven_action = new(H, coven)
+		coven_action.Grant(H)
+		coven_actions += coven_action
 
 /datum/component/dawnwalker/proc/should_apply_effects(mob/living/carbon/human/H)
 	if(!HAS_TRAIT(H, TRAIT_DAWNWALKER))
@@ -67,10 +75,15 @@
 	if(!istype(H) || H.stat == DEAD || H.advsetup)
 		return
 	if(!should_apply_effects(H))
-		if(length(actions))
-			for(var/datum/action/dawnwalker_power/power_action as anything in actions)
-				power_action.Remove(H)
-			actions = null
+		if(length(coven_actions))
+			for(var/datum/action/coven/coven_action as anything in coven_actions)
+				coven_action.Remove(H)
+			coven_actions = null
+		if(length(dawnwalker_covens))
+			for(var/datum/coven/coven as anything in dawnwalker_covens)
+				LAZYREMOVE(H.covens, coven)
+			QDEL_LIST(dawnwalker_covens)
+			dawnwalker_covens = null
 		return
 	initialize_bloodpool_hud(H)
 	ensure_powers(H)
