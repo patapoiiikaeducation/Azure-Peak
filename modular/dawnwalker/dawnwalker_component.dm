@@ -30,6 +30,7 @@
 		return
 	H.hud_used.initialize_bloodpool()
 	H.hud_used.bloodpool.set_fill_color("#510000")
+	H.set_bloodpool(H.bloodpool)
 
 /datum/component/dawnwalker/proc/should_apply_effects(mob/living/carbon/human/H)
 	if(!HAS_TRAIT(H, TRAIT_DAWNWALKER))
