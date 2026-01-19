@@ -3,20 +3,53 @@
 	var/last_sun_tick = 0
 	var/last_miracle_warning = 0
 	var/in_sunlight = FALSE
+	var/atom/movable/screen/bloodpool/owned_bloodpool
 
 /datum/component/dawnwalker/Initialize()
 	if(!isliving(parent))
 		return COMPONENT_INCOMPATIBLE
+	var/mob/living/carbon/human/H = parent
+	if(istype(H))
+		initialize_bloodpool_hud(H)
 	RegisterSignal(parent, COMSIG_HUMAN_LIFE, PROC_REF(handle_life))
 	RegisterSignal(parent, COMSIG_LIVING_MIRACLE_HEAL_APPLY, PROC_REF(on_miracle_heal))
 	RegisterSignal(parent, COMSIG_PARENT_EXAMINE, PROC_REF(on_examine))
 	RegisterSignal(parent, COMSIG_MOB_ITEM_BEING_ATTACKED, PROC_REF(on_item_attacked))
 	return ..()
 
+/datum/component/dawnwalker/Destroy()
+	var/mob/living/carbon/human/H = parent
+	if(istype(H) && owned_bloodpool && H.hud_used?.bloodpool == owned_bloodpool)
+		H.hud_used.shutdown_bloodpool()
+	owned_bloodpool = null
+	return ..()
+
+/datum/component/dawnwalker/proc/initialize_bloodpool_hud(mob/living/carbon/human/H)
+	if(!H?.hud_used)
+		return
+	if(H.hud_used.bloodpool)
+		return
+	H.hud_used.initialize_bloodpool()
+	H.hud_used.bloodpool.set_fill_color("#510000")
+	owned_bloodpool = H.hud_used.bloodpool
+
+/datum/component/dawnwalker/proc/should_apply_effects(mob/living/carbon/human/H)
+	if(!HAS_TRAIT(H, TRAIT_DAWNWALKER))
+		return FALSE
+	if(H.clan)
+		return FALSE
+	if(H.mind?.has_antag_datum(/datum/antagonist/vampire))
+		return FALSE
+	return TRUE
+
 /datum/component/dawnwalker/proc/handle_life(mob/living/source)
 	var/mob/living/carbon/human/H = source
 	if(!istype(H) || H.stat == DEAD || H.advsetup)
 		return
+	if(!should_apply_effects(H))
+		return
+	initialize_bloodpool_hud(H)
+	H.handle_bloodpool_effects()
 	handle_blood_heal(H)
 	handle_sunlight(H)
 
@@ -63,6 +96,8 @@
 	var/mob/living/carbon/human/H = parent
 	if(!istype(H))
 		return
+	if(!should_apply_effects(H))
+		return
 	H.adjustFireLoss(max(1, round(healing_on_tick * 0.5)), 0)
 	if(last_miracle_warning + 10 SECONDS < world.time)
 		last_miracle_warning = world.time
@@ -78,5 +113,10 @@
 /datum/component/dawnwalker/proc/on_item_attacked(datum/source, mob/living/target, mob/living/user, obj/item/weapon)
 	if(!istype(target, /mob/living))
 		return
-	if(HAS_TRAIT(target, TRAIT_DAWNWALKER) && istype(weapon) && weapon?.is_silver)
+	var/mob/living/carbon/human/H = target
+	if(!istype(H))
+		return
+	if(!should_apply_effects(H))
+		return
+	if(istype(weapon) && weapon?.is_silver)
 		target.apply_status_effect(/datum/status_effect/debuff/dawnwalker_silver)
