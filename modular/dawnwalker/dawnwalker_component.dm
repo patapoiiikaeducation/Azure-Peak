@@ -13,7 +13,8 @@
 	RegisterSignal(parent, COMSIG_HUMAN_LIFE, PROC_REF(handle_life))
 	RegisterSignal(parent, COMSIG_LIVING_MIRACLE_HEAL_APPLY, PROC_REF(on_miracle_heal))
 	RegisterSignal(parent, COMSIG_PARENT_EXAMINE, PROC_REF(on_examine))
-	RegisterSignal(parent, COMSIG_MOB_ITEM_BEING_ATTACKED, PROC_REF(on_item_attacked))
+	RegisterSignal(parent, COMSIG_ITEM_ATTACK_EFFECT, PROC_REF(on_item_attack_effect))
+	RegisterSignal(parent, COMSIG_ITEM_EQUIPPED, PROC_REF(on_item_equipped))
 	return ..()
 
 /datum/component/dawnwalker/Destroy()
@@ -109,13 +110,28 @@
 		if(!HAS_TRAIT(user, TRAIT_DAWNWALKER))
 			user.add_stress(/datum/stressevent/dawnwalker_disgust)
 
-/datum/component/dawnwalker/proc/on_item_attacked(datum/source, mob/living/target, mob/living/user, obj/item/weapon)
-	if(!istype(target, /mob/living))
+/datum/component/dawnwalker/proc/should_apply_silver_debuff(mob/living/carbon/human/H)
+	if(!should_apply_effects(H))
+		return FALSE
+	if(H.has_status_effect(STATUS_EFFECT_ANTIMAGIC))
+		return FALSE
+	return TRUE
+
+/datum/component/dawnwalker/proc/try_apply_silver_debuff(mob/living/carbon/human/H)
+	if(!should_apply_silver_debuff(H))
 		return
-	var/mob/living/carbon/human/H = target
+	H.apply_status_effect(/datum/status_effect/debuff/dawnwalker_silver)
+
+/datum/component/dawnwalker/proc/on_item_attack_effect(datum/source, mob/user, obj/item/bodypart/affecting, intent, selzone, obj/item/weapon)
+	var/mob/living/carbon/human/H = parent
 	if(!istype(H))
 		return
-	if(!should_apply_effects(H))
-		return
 	if(istype(weapon) && weapon?.is_silver)
-		target.apply_status_effect(/datum/status_effect/debuff/dawnwalker_silver)
+		try_apply_silver_debuff(H)
+
+/datum/component/dawnwalker/proc/on_item_equipped(datum/source, obj/item/item, slot)
+	var/mob/living/carbon/human/H = parent
+	if(!istype(H))
+		return
+	if(istype(item) && item?.is_silver)
+		try_apply_silver_debuff(H)
