@@ -112,12 +112,22 @@
 	set name = "Punish Minion"
 	set category = "VAMPIRE"
 
+	if(!clan || !clan_position)
+		to_chat(src, span_warning("I have no clan subordinates to punish."))
+		return
+
 	var/list/possible = list()
-	for(var/datum/mind/V in SSmapping.retainer.vampires)
-		if(V.special_role == "Vampire Spawn")
-			possible[V.current.real_name] = V.current
-	for(var/datum/mind/D in SSmapping.retainer.death_knights)
-		possible[D.current.real_name] = D.current
+	var/list/all_subordinates = clan_position.get_all_subordinates()
+	for(var/datum/clan_hierarchy_node/subordinate in all_subordinates)
+		var/mob/living/carbon/human/current = subordinate.assigned_member
+		if(!current || QDELETED(current))
+			continue
+		if(!clan_position.is_superior_to(current.clan_position))
+			continue
+		possible["[current.real_name] ([subordinate.name])"] = current
+	if(!length(possible))
+		to_chat(src, span_warning("I have no minions to punish."))
+		return
 	var/name_choice = input(src, "Who to punish?", "PUNISHMENT") as null|anything in possible
 	if(!name_choice)
 		return
