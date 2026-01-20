@@ -22,6 +22,7 @@
 	RegisterSignal(parent, COMSIG_PARENT_EXAMINE, PROC_REF(on_examine))
 	RegisterSignal(parent, COMSIG_ITEM_ATTACK_EFFECT, PROC_REF(on_item_attack_effect))
 	RegisterSignal(parent, COMSIG_ITEM_EQUIPPED, PROC_REF(on_item_equipped))
+	RegisterSignal(parent, COMSIG_ITEM_DROPPED, PROC_REF(on_item_dropped))
 	RegisterSignal(parent, COMSIG_LIVING_DRINKED_LIMB_BLOOD, PROC_REF(on_drink_blood))
 	return ..()
 
@@ -70,7 +71,8 @@
 	initialize_vitae(H)
 	var/datum/coven/dawnwalker_bloodheal/bloodheal = new()
 	var/datum/coven/dawnwalker_fear/fear = new()
-	dawnwalker_covens = list(bloodheal, fear)
+	var/datum/coven/dawnwalker_bloodlick/bloodlick = new()
+	dawnwalker_covens = list(bloodheal, fear, bloodlick)
 	coven_actions = list()
 	for(var/datum/coven/coven as anything in dawnwalker_covens)
 		coven.initialize_powers_for_level(coven.max_level)
@@ -105,10 +107,11 @@
 		return
 	initialize_bloodpool_hud(H)
 	ensure_powers(H)
-	H.handle_bloodpool_effects()
+	update_bloodpool_display(H)
 	handle_low_vitae_frenzy(H)
 	handle_blood_heal(H)
 	handle_sunlight(H)
+	handle_silver_exposure(H)
 
 /datum/component/dawnwalker/proc/handle_blood_heal(mob/living/carbon/human/H)
 	if(world.time < last_blood_heal + 8 SECONDS)
@@ -146,7 +149,7 @@
 		to_chat(H, span_danger("Hunger boils in my veins as the sun sears me!"))
 		in_sunlight = TRUE
 	H.apply_status_effect(/datum/status_effect/buff/dawnwalker_rage)
-	if(H.has_status_effect(/datum/status_effect/buff/fotv))
+	if(H.has_status_effect(/datum/status_effect/buff/dawnwalker_rage))
 		H.fire_act(6, 10)
 		H.adjustFireLoss(15, 0)
 		if(prob(20))
@@ -204,7 +207,7 @@
 		return
 	to_chat(examiner, span_boldwarning("Ah, what a filthy creature! It offends my kind!"))
 	if(prob(95))
-		examiner.say("[target.real_name], you filthy wretch!!!")
+		examiner.say("[target.name], you filthy wretch!!!")
 		examiner.emote("scream", forced = TRUE)
 		examiner.playsound_local(examiner, pick('sound/vo/male/gen/scream (1).ogg','sound/vo/male/gen/scream (2).ogg'), 125, TRUE)
 
@@ -233,3 +236,27 @@
 		return
 	if(istype(item) && item?.is_silver)
 		try_apply_silver_debuff(H)
+	handle_silver_exposure(H)
+
+/datum/component/dawnwalker/proc/on_item_dropped(datum/source, obj/item/item)
+	var/mob/living/carbon/human/H = parent
+	if(!istype(H))
+		return
+	handle_silver_exposure(H)
+
+/datum/component/dawnwalker/proc/handle_silver_exposure(mob/living/carbon/human/H)
+	if(!H)
+		return
+	if(has_silver_equipped(H))
+		try_apply_silver_debuff(H)
+	else
+		H.remove_status_effect(/datum/status_effect/debuff/dawnwalker_silver)
+
+/datum/component/dawnwalker/proc/has_silver_equipped(mob/living/carbon/human/H)
+	for(var/obj/item/I in H.get_equipped_items(TRUE))
+		if(I?.is_silver)
+			return TRUE
+	for(var/obj/item/I in H.held_items)
+		if(I?.is_silver)
+			return TRUE
+	return FALSE
