@@ -273,7 +273,7 @@
 	if(has_silver_equipped(H))
 		try_apply_silver_debuff(H)
 	else
-		H.remove_status_effect(/datum/status_effect/debuff/dawnwalker_silver)
+		return
 
 /datum/component/dawnwalker/proc/has_silver_equipped(mob/living/carbon/human/H)
 	for(var/obj/item/I in H.get_equipped_items(TRUE))

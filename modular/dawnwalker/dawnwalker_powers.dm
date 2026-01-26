@@ -71,7 +71,7 @@
 	check_flags = COVEN_CHECK_CONSCIOUS | COVEN_CHECK_CAPABLE
 	vitae_cost = 100
 	cancelable = TRUE
-	duration_length = 30 SECONDS
+	duration_length = 20 SECONDS
 	cooldown_length = 1 MINUTES
 
 /datum/coven_power/dawnwalker_deny_the_mother/can_afford()

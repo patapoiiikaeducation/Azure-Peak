@@ -9,7 +9,7 @@
 	id = "dawnwalker_rage"
 	alert_type = /atom/movable/screen/alert/status_effect/buff/dawnwalker_rage
 	effectedstats = list(STATKEY_STR = 1, STATKEY_SPD = 1)
-	duration = 12 SECONDS
+	duration = 20 SECONDS
 	var/outline_color = "#c23b2a"
 
 /datum/status_effect/buff/dawnwalker_rage/on_apply()
