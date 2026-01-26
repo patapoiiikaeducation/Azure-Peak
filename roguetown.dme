@@ -2659,6 +2659,7 @@
 #include "code\modules\surgery\bodyparts\_bodyparts.dm"
 #include "code\modules\surgery\bodyparts\bodypart_dismemberment.dm"
 #include "code\modules\surgery\bodyparts\bodypart_examine.dm"
+#include "modular\dawnwalker\dawnwalker.dm"
 #include "code\modules\surgery\bodyparts\bodypart_wounds.dm"
 #include "code\modules\surgery\bodyparts\head.dm"
 #include "code\modules\surgery\bodyparts\helpers.dm"
