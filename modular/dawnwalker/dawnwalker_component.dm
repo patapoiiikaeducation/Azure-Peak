@@ -3,11 +3,15 @@
 	var/last_sun_tick = 0
 	var/last_miracle_warning = 0
 	var/in_sunlight = FALSE
-	var/list/datum/coven/dawnwalker_covens
 	var/last_frenzy_check = 0
 	var/max_vitae = 250
 	var/dawnwalker_vitae = 0
 	var/atom/movable/screen/bloodpool/dawnwalker_bloodpool
+	var/list/dawnwalker_spells = list(
+		/obj/effect/proc_holder/spell/self/dawnwalker_bloodheal,
+		/obj/effect/proc_holder/spell/self/dawnwalker_deny_the_mother,
+		/obj/effect/proc_holder/spell/self/dawnwalker_bloodlick,
+	)
 
 /datum/component/dawnwalker/Initialize()
 	if(!isliving(parent))
@@ -16,8 +20,9 @@
 	if(istype(H))
 		initialize_vitae(H)
 		initialize_bloodpool_hud(H)
-		ensure_powers(H)
+		ensure_spells(H)
 	RegisterSignal(parent, COMSIG_HUMAN_LIFE, PROC_REF(handle_life))
+	RegisterSignal(parent, COMSIG_MOB_HUD_CREATED, PROC_REF(on_hud_created))
 	RegisterSignal(parent, COMSIG_LIVING_MIRACLE_HEAL_APPLY, PROC_REF(on_miracle_heal))
 	RegisterSignal(parent, COMSIG_PARENT_EXAMINE, PROC_REF(on_examine))
 	RegisterSignal(parent, COMSIG_ITEM_ATTACK_EFFECT, PROC_REF(on_item_attack_effect))
@@ -30,11 +35,7 @@
 	var/mob/living/carbon/human/H = parent
 	if(istype(H))
 		clear_bloodpool_hud(H)
-	if(length(dawnwalker_covens))
-		for(var/datum/coven/coven as anything in dawnwalker_covens)
-			H.remove_coven(coven, silent = TRUE)
-		QDEL_LIST(dawnwalker_covens)
-		dawnwalker_covens = null
+	clear_spells(H)
 	return ..()
 
 /datum/component/dawnwalker/proc/initialize_bloodpool_hud(mob/living/carbon/human/H)
@@ -75,19 +76,15 @@
 	dawnwalker_vitae = CLAMP(dawnwalker_vitae + amount, 0, max_vitae)
 	update_bloodpool_display(H)
 
-/datum/component/dawnwalker/proc/ensure_powers(mob/living/carbon/human/H)
+/datum/component/dawnwalker/proc/ensure_spells(mob/living/carbon/human/H)
 	if(!should_apply_effects(H))
 		return
-	if(length(dawnwalker_covens))
-		return
 	initialize_vitae(H)
-	var/datum/coven/dawnwalker_bloodheal/bloodheal = new()
-	var/datum/coven/dawnwalker_fear/fear = new()
-	var/datum/coven/dawnwalker_bloodlick/bloodlick = new()
-	dawnwalker_covens = list(bloodheal, fear, bloodlick)
-	for(var/datum/coven/coven as anything in dawnwalker_covens)
-		coven.initialize_powers_for_level(coven.max_level)
-		H.give_coven(coven)
+	if(!H?.mind)
+		return
+	for(var/spell_type in dawnwalker_spells)
+		if(!H.mind.has_spell(spell_type))
+			H.mind.AddSpell(new spell_type, H)
 
 /datum/component/dawnwalker/proc/should_apply_effects(mob/living/carbon/human/H)
 	if(!HAS_TRAIT(H, TRAIT_DAWNWALKER))
@@ -103,15 +100,11 @@
 	if(!istype(H) || H.stat == DEAD || H.advsetup)
 		return
 	if(!should_apply_effects(H))
-		if(length(dawnwalker_covens))
-			for(var/datum/coven/coven as anything in dawnwalker_covens)
-				H.remove_coven(coven, silent = TRUE)
-			QDEL_LIST(dawnwalker_covens)	
-			dawnwalker_covens = null
+		clear_spells(H)
 		clear_bloodpool_hud(H)
 		return
 	initialize_bloodpool_hud(H)
-	ensure_powers(H)
+	ensure_spells(H)
 	update_bloodpool_position(H)
 	update_bloodpool_display(H)
 	handle_low_vitae_frenzy(H)
@@ -124,6 +117,21 @@
 		return
 	H?.hud_used?.infodisplay -= dawnwalker_bloodpool
 	QDEL_NULL(dawnwalker_bloodpool)
+
+/datum/component/dawnwalker/proc/clear_spells(mob/living/carbon/human/H)
+	if(!H?.mind)
+		return
+	for(var/spell_type in dawnwalker_spells)
+		H.mind.RemoveSpell(spell_type)
+
+/datum/component/dawnwalker/proc/on_hud_created(mob/source)
+	SIGNAL_HANDLER
+	var/mob/living/carbon/human/H = source
+	if(!istype(H))
+		return
+	initialize_bloodpool_hud(H)
+	update_bloodpool_position(H)
+	update_bloodpool_display(H)
 
 /datum/component/dawnwalker/proc/handle_blood_heal(mob/living/carbon/human/H)
 	if(world.time < last_blood_heal + 8 SECONDS)
