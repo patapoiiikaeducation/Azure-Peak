@@ -9,6 +9,16 @@
 		return FALSE
 	if(NOBLOOD in character.dna.species.species_traits)
 		return FALSE
+	if(character.advjob == "Licker")
+		return FALSE
+	var/assigned_role = character.mind?.assigned_role
+	if(assigned_role)
+		if(assigned_role in GLOB.noble_positions)
+			return FALSE
+		if(assigned_role == "Bishop")
+			return FALSE
+		if(assigned_role == "Inquisitor")
+			return FALSE
 	return TRUE
 
 /datum/special_trait/dawnwalker/on_apply(mob/living/carbon/human/character, silent)

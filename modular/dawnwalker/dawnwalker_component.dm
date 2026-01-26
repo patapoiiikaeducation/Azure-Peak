@@ -4,7 +4,6 @@
 	var/last_miracle_warning = 0
 	var/in_sunlight = FALSE
 	var/list/datum/coven/dawnwalker_covens
-	var/list/datum/action/coven/coven_actions
 	var/last_frenzy_check = 0
 	var/max_vitae = 250
 	var/dawnwalker_vitae = 0
@@ -31,11 +30,9 @@
 	var/mob/living/carbon/human/H = parent
 	if(istype(H))
 		clear_bloodpool_hud(H)
-	if(length(coven_actions))
-		for(var/datum/action/coven/coven_action as anything in coven_actions)
-			coven_action.Remove(H)
-		coven_actions = null
 	if(length(dawnwalker_covens))
+		for(var/datum/coven/coven as anything in dawnwalker_covens)
+			H.remove_coven(coven, silent = TRUE)
 		QDEL_LIST(dawnwalker_covens)
 		dawnwalker_covens = null
 	return ..()
@@ -81,20 +78,16 @@
 /datum/component/dawnwalker/proc/ensure_powers(mob/living/carbon/human/H)
 	if(!should_apply_effects(H))
 		return
-	if(length(coven_actions))
+	if(length(dawnwalker_covens))
 		return
 	initialize_vitae(H)
 	var/datum/coven/dawnwalker_bloodheal/bloodheal = new()
 	var/datum/coven/dawnwalker_fear/fear = new()
 	var/datum/coven/dawnwalker_bloodlick/bloodlick = new()
 	dawnwalker_covens = list(bloodheal, fear, bloodlick)
-	coven_actions = list()
 	for(var/datum/coven/coven as anything in dawnwalker_covens)
 		coven.initialize_powers_for_level(coven.max_level)
-		LAZYADD(H.covens, coven)
-		var/datum/action/coven/coven_action = new(H, coven)
-		coven_action.Grant(H)
-		coven_actions += coven_action
+		H.give_coven(coven)
 
 /datum/component/dawnwalker/proc/should_apply_effects(mob/living/carbon/human/H)
 	if(!HAS_TRAIT(H, TRAIT_DAWNWALKER))
@@ -110,14 +103,10 @@
 	if(!istype(H) || H.stat == DEAD || H.advsetup)
 		return
 	if(!should_apply_effects(H))
-		if(length(coven_actions))
-			for(var/datum/action/coven/coven_action as anything in coven_actions)
-				coven_action.Remove(H)
-			coven_actions = null
 		if(length(dawnwalker_covens))
 			for(var/datum/coven/coven as anything in dawnwalker_covens)
-				LAZYREMOVE(H.covens, coven)
-			QDEL_LIST(dawnwalker_covens)
+				H.remove_coven(coven, silent = TRUE)
+			QDEL_LIST(dawnwalker_covens)	
 			dawnwalker_covens = null
 		clear_bloodpool_hud(H)
 		return
@@ -223,12 +212,12 @@
 		var/mob/living/carbon/human/examiner = user
 		if(istype(examiner) && examiner.mind?.has_antag_datum(/datum/antagonist/vampire))
 			examiner.add_stress(/datum/stressevent/dawnwalker_vampire_disgust)
+			examine_list += span_boldnotice("A filthy wretch.")
 			addtimer(CALLBACK(src, PROC_REF(handle_vampire_examine_reaction), examiner, H), 1)
 
 /datum/component/dawnwalker/proc/handle_vampire_examine_reaction(mob/living/carbon/human/examiner, mob/living/carbon/human/target)
 	if(!istype(examiner) || !istype(target))
 		return
-	to_chat(examiner, span_boldwarning("Ah, what a filthy creature! It offends my kind!"))
 	if(prob(95))
 		examiner.say("[target.name], you filthy wretch!!!")
 		examiner.emote("scream", forced = TRUE)
