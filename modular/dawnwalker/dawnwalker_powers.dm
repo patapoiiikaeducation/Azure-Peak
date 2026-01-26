@@ -2,19 +2,19 @@
 	name = "Dawnwalker Bloodheal"
 	desc = "Bloodbound mending."
 	icon_state = "bloodheal"
-	power_type = /datum/coven_power/bloodheal
+	power_type = /datum/coven_power/dawnwalker_bloodheal
 	max_level = 1
 	clan_restricted = FALSE
-	all_powers = list(/datum/coven_power/bloodheal/dawnwalker)
+	all_powers = list(/datum/coven_power/dawnwalker_bloodheal)
 
 /datum/coven/dawnwalker_fear
 	name = "Dawnwalker Rage"
 	desc = "A surge of dread and speed."
 	icon_state = "daimonion"
-	power_type = /datum/coven_power/demonic
+	power_type = /datum/coven_power/dawnwalker_deny_the_mother
 	max_level = 1
 	clan_restricted = FALSE
-	all_powers = list(/datum/coven_power/demonic/fear_of_the_void_below/dawnwalker)
+	all_powers = list(/datum/coven_power/dawnwalker_deny_the_mother)
 
 /datum/coven/dawnwalker_bloodlick
 	name = "Dawnwalker Bloodlick"
@@ -25,49 +25,73 @@
 	clan_restricted = FALSE
 	all_powers = list(/datum/coven_power/dawnwalker_bloodlick)
 
-/datum/coven_power/bloodheal/dawnwalker
-	parent_type = /datum/coven_power/bloodheal/one
+/datum/coven_power/dawnwalker_bloodheal
 	name = "Bloodheal"
-	desc = "Spend vitae to mend minor wounds."
-	vitae_cost = 15
+	desc = "Spend vitae to seal weak bleeding."
+	check_flags = COVEN_CHECK_TORPORED
+	vitae_cost = 50
+	cooldown_length = 30 SECONDS
 
-/datum/coven_power/bloodheal/dawnwalker/can_afford()
+/datum/coven_power/dawnwalker_bloodheal/can_afford()
 	var/datum/component/dawnwalker/component = owner?.GetComponent(/datum/component/dawnwalker)
 	return component?.dawnwalker_vitae >= vitae_cost
 
-/datum/coven_power/bloodheal/dawnwalker/spend_resources()
+/datum/coven_power/dawnwalker_bloodheal/spend_resources()
 	if(!can_afford())
 		return FALSE
 	var/datum/component/dawnwalker/component = owner?.GetComponent(/datum/component/dawnwalker)
 	component?.adjust_vitae(owner, -vitae_cost)
 	return TRUE
 
-/datum/coven_power/demonic/fear_of_the_void_below/dawnwalker
-	parent_type = /datum/coven_power/demonic/fear_of_the_void_below
-	name = "Fear of the Void"
-	desc = "Short burst of speed and resilience."
-	vitae_cost = 100
-
-/datum/coven_power/demonic/fear_of_the_void_below/dawnwalker/can_afford()
-	var/datum/component/dawnwalker/component = owner?.GetComponent(/datum/component/dawnwalker)
-	return component?.dawnwalker_vitae >= vitae_cost
-
-/datum/coven_power/demonic/fear_of_the_void_below/dawnwalker/spend_resources()
-	if(!can_afford())
-		return FALSE
-	var/datum/component/dawnwalker/component = owner?.GetComponent(/datum/component/dawnwalker)
-	component?.adjust_vitae(owner, -vitae_cost)
-	return TRUE
-
-/datum/coven_power/demonic/fear_of_the_void_below/dawnwalker/activate()
+/datum/coven_power/dawnwalker_bloodheal/activate()
 	. = ..()
 	if(!.)
 		return
-	owner.remove_movespeed_modifier(MOVESPEED_ID_FOTV)
-	owner.remove_status_effect(/datum/status_effect/buff/fotv)
+	var/mob/living/carbon/human/H = owner
+	if(!istype(H))
+		return FALSE
+	var/closed_bleeding = FALSE
+	for(var/obj/item/bodypart/BP in H.bodyparts)
+		if(!BP)
+			continue
+		var/bleed_rate = BP.get_bleed_rate()
+		if(bleed_rate > 0 && bleed_rate <= 1)
+			BP.bleeding = 0
+			closed_bleeding = TRUE
+	if(H.simple_bleeding > 0 && H.simple_bleeding <= 1)
+		H.simple_bleeding = 0
+		closed_bleeding = TRUE
+	if(closed_bleeding)
+		H.update_damage_overlays()
+	return TRUE
+
+/datum/coven_power/dawnwalker_deny_the_mother
+	name = "Deny the Mother"
+	desc = "Tap into stolen vitae to unleash a vicious rage."
+	check_flags = COVEN_CHECK_CONSCIOUS | COVEN_CHECK_CAPABLE
+	vitae_cost = 100
+	cancelable = TRUE
+	duration_length = 30 SECONDS
+	cooldown_length = 1 MINUTES
+
+/datum/coven_power/dawnwalker_deny_the_mother/can_afford()
+	var/datum/component/dawnwalker/component = owner?.GetComponent(/datum/component/dawnwalker)
+	return component?.dawnwalker_vitae >= vitae_cost
+
+/datum/coven_power/dawnwalker_deny_the_mother/spend_resources()
+	if(!can_afford())
+		return FALSE
+	var/datum/component/dawnwalker/component = owner?.GetComponent(/datum/component/dawnwalker)
+	component?.adjust_vitae(owner, -vitae_cost)
+	return TRUE
+
+/datum/coven_power/dawnwalker_deny_the_mother/activate()
+	. = ..()
+	if(!.)
+		return
 	owner.apply_status_effect(/datum/status_effect/buff/dawnwalker_rage)
 
-/datum/coven_power/demonic/fear_of_the_void_below/dawnwalker/deactivate()
+/datum/coven_power/dawnwalker_deny_the_mother/deactivate()
 	. = ..()
 	owner.remove_status_effect(/datum/status_effect/buff/dawnwalker_rage)
 

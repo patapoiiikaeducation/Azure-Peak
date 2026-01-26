@@ -8,6 +8,7 @@
 	var/last_frenzy_check = 0
 	var/max_vitae = 250
 	var/dawnwalker_vitae = 0
+	var/atom/movable/screen/bloodpool/dawnwalker_bloodpool
 
 /datum/component/dawnwalker/Initialize()
 	if(!isliving(parent))
@@ -28,9 +29,8 @@
 
 /datum/component/dawnwalker/Destroy()
 	var/mob/living/carbon/human/H = parent
-	if(istype(H) && H.hud_used?.bloodpool)
-		if(!H.clan && !H.mind?.has_antag_datum(/datum/antagonist/vampire) && !H.devotion)
-			H.hud_used.shutdown_bloodpool()
+	if(istype(H))
+		clear_bloodpool_hud(H)
 	if(length(coven_actions))
 		for(var/datum/action/coven/coven_action as anything in coven_actions)
 			coven_action.Remove(H)
@@ -43,23 +43,36 @@
 /datum/component/dawnwalker/proc/initialize_bloodpool_hud(mob/living/carbon/human/H)
 	if(!H?.hud_used)
 		return
-	if(H.hud_used.bloodpool)
+	if(dawnwalker_bloodpool)
 		return
-	H.hud_used.initialize_bloodpool()
-	H.hud_used.bloodpool.set_fill_color("#510000")
+	dawnwalker_bloodpool = new /atom/movable/screen/bloodpool(null, H.hud_used)
+	dawnwalker_bloodpool.set_fill_color("#510000")
+	H.hud_used.infodisplay += dawnwalker_bloodpool
+	update_bloodpool_position(H)
 	update_bloodpool_display(H)
 
 /datum/component/dawnwalker/proc/initialize_vitae(mob/living/carbon/human/H)
 	if(dawnwalker_vitae <= 0)
 		dawnwalker_vitae = max_vitae
-	if(H.maxbloodpool < max_vitae)
-		H.maxbloodpool = max_vitae
 	update_bloodpool_display(H)
 
 /datum/component/dawnwalker/proc/update_bloodpool_display(mob/living/carbon/human/H)
-	if(!H)
+	if(!H || !dawnwalker_bloodpool)
 		return
-	H.set_bloodpool(dawnwalker_vitae)
+	dawnwalker_bloodpool.name = "Vitae: [dawnwalker_vitae]"
+	dawnwalker_bloodpool.desc = "Vitae: [dawnwalker_vitae]/[max_vitae]"
+	if(dawnwalker_vitae <= 0 || max_vitae <= 0)
+		dawnwalker_bloodpool.set_value(0, 1 SECONDS)
+	else
+		dawnwalker_bloodpool.set_value((100 / (max_vitae / dawnwalker_vitae)) / 100, 1 SECONDS)
+
+/datum/component/dawnwalker/proc/update_bloodpool_position(mob/living/carbon/human/H)
+	if(!dawnwalker_bloodpool)
+		return
+	if(H?.devotion)
+		dawnwalker_bloodpool.screen_loc = "WEST-6,CENTER+2"
+	else
+		dawnwalker_bloodpool.screen_loc = rogueui_vitae
 
 /datum/component/dawnwalker/proc/adjust_vitae(mob/living/carbon/human/H, amount)
 	dawnwalker_vitae = CLAMP(dawnwalker_vitae + amount, 0, max_vitae)
@@ -106,14 +119,22 @@
 				LAZYREMOVE(H.covens, coven)
 			QDEL_LIST(dawnwalker_covens)
 			dawnwalker_covens = null
+		clear_bloodpool_hud(H)
 		return
 	initialize_bloodpool_hud(H)
 	ensure_powers(H)
+	update_bloodpool_position(H)
 	update_bloodpool_display(H)
 	handle_low_vitae_frenzy(H)
 	handle_blood_heal(H)
 	handle_sunlight(H)
 	handle_silver_exposure(H)
+
+/datum/component/dawnwalker/proc/clear_bloodpool_hud(mob/living/carbon/human/H)
+	if(!dawnwalker_bloodpool)
+		return
+	H?.hud_used?.infodisplay -= dawnwalker_bloodpool
+	QDEL_NULL(dawnwalker_bloodpool)
 
 /datum/component/dawnwalker/proc/handle_blood_heal(mob/living/carbon/human/H)
 	if(world.time < last_blood_heal + 8 SECONDS)
@@ -188,7 +209,7 @@
 		return
 	if(!should_apply_effects(H))
 		return
-	adjust_vitae(H, 25)
+	return
 
 /datum/component/dawnwalker/proc/on_examine(datum/source, mob/user, list/examine_list)
 	if(!isliving(user))
