@@ -14,15 +14,14 @@
 		return FALSE
 	var/datum/job/assigned_role = character.mind?.assigned_role
 	if(assigned_role)
-		if(istype(assigned_role, /datum/job/roguetown/lord))
-			return FALSE
-		if(istype(assigned_role, /datum/job/roguetown/prince))
-			return FALSE
-		if(istype(assigned_role, /datum/job/roguetown/lady))
-			return FALSE
-		if(istype(assigned_role, /datum/job/roguetown/priest))
-			return FALSE
-		if(istype(assigned_role, /datum/job/roguetown/inquisitor))
+		var/list/blocked_jobs = list(
+			/datum/job/roguetown/lord,
+			/datum/job/roguetown/prince,
+			/datum/job/roguetown/lady,
+			/datum/job/roguetown/priest,
+			/datum/job/roguetown/inquisitor,
+		)
+		if(is_type_in_list(assigned_role, blocked_jobs))
 			return FALSE
 	return TRUE
 
