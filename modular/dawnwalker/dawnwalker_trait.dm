@@ -9,15 +9,20 @@
 		return FALSE
 	if(NOBLOOD in character.dna.species.species_traits)
 		return FALSE
-	if(character.advjob == "Licker")
+	var/datum/advclass/advclass = SSrole_class_handler.get_advclass_by_name(character.advjob)
+	if(istype(advclass, /datum/advclass/wretch/licker))
 		return FALSE
-	var/assigned_role = character.mind?.assigned_role
+	var/datum/job/assigned_role = character.mind?.assigned_role
 	if(assigned_role)
-		if(assigned_role in GLOB.noble_positions)
+		if(istype(assigned_role, /datum/job/roguetown/lord))
 			return FALSE
-		if(assigned_role == "Bishop")
+		if(istype(assigned_role, /datum/job/roguetown/prince))
 			return FALSE
-		if(assigned_role == "Inquisitor")
+		if(istype(assigned_role, /datum/job/roguetown/lady))
+			return FALSE
+		if(istype(assigned_role, /datum/job/roguetown/priest))
+			return FALSE
+		if(istype(assigned_role, /datum/job/roguetown/inquisitor))
 			return FALSE
 	return TRUE
 
