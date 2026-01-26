@@ -1,6 +1,6 @@
 /obj/effect/proc_holder/spell/self/dawnwalker_bloodheal
-	name = "Bloodheal"
-	desc = "Spend vitae to seal weak bleeding."
+	name = "Кроволечение"
+	desc = "Потратить витэ, чтобы запечатать слабое кровотечение."
 	recharge_time = 30 SECONDS
 	cooldown_min = 30 SECONDS
 	invocation_type = "whisper"
@@ -12,7 +12,7 @@
 		return FALSE
 	var/datum/component/dawnwalker/component = user?.GetComponent(/datum/component/dawnwalker)
 	if(!component || component.dawnwalker_vitae < vitae_cost)
-		to_chat(user, span_warning("I do not have enough vitae."))
+		to_chat(user, span_warning("У меня недостаточно витэ."))
 		return FALSE
 	return TRUE
 
@@ -21,7 +21,7 @@
 		return FALSE
 	var/datum/component/dawnwalker/component = user.GetComponent(/datum/component/dawnwalker)
 	if(!component || component.dawnwalker_vitae < vitae_cost)
-		to_chat(user, span_warning("I do not have enough vitae."))
+		to_chat(user, span_warning("У меня недостаточно витэ."))
 		return FALSE
 	component.adjust_vitae(user, -vitae_cost)
 	var/closed_bleeding = FALSE
@@ -40,8 +40,8 @@
 	return TRUE
 
 /obj/effect/proc_holder/spell/self/dawnwalker_deny_the_mother
-	name = "Deny the Mother"
-	desc = "Unleash a brief surge of stolen rage."
+	name = "Отрицание Матери"
+	desc = "Высвободить краткий всплеск украденной ярости."
 	recharge_time = 1 MINUTES
 	cooldown_min = 1 MINUTES
 	invocation_type = "shout"
@@ -53,7 +53,7 @@
 		return FALSE
 	var/datum/component/dawnwalker/component = user?.GetComponent(/datum/component/dawnwalker)
 	if(!component || component.dawnwalker_vitae < vitae_cost)
-		to_chat(user, span_warning("I do not have enough vitae."))
+		to_chat(user, span_warning("У меня недостаточно витэ."))
 		return FALSE
 	return TRUE
 
@@ -62,15 +62,15 @@
 		return FALSE
 	var/datum/component/dawnwalker/component = user.GetComponent(/datum/component/dawnwalker)
 	if(!component || component.dawnwalker_vitae < vitae_cost)
-		to_chat(user, span_warning("I do not have enough vitae."))
+		to_chat(user, span_warning("У меня недостаточно витэ."))
 		return FALSE
 	component.adjust_vitae(user, -vitae_cost)
 	user.apply_status_effect(/datum/status_effect/buff/dawnwalker_rage)
 	return TRUE
 
 /obj/effect/proc_holder/spell/self/dawnwalker_bloodlick
-	name = "Bloodlick"
-	desc = "Lick blood from the ground to restore vitae."
+	name = "Кроволиз"
+	desc = "Слизнуть кровь с земли, чтобы восстановить витэ."
 	recharge_time = 8 SECONDS
 	cooldown_min = 8 SECONDS
 	invocation_type = "whisper"
@@ -101,10 +101,10 @@
 				consumed = 1
 				qdel(B)
 	if(!consumed)
-		to_chat(user, span_warning("There's no blood here to lick."))
+		to_chat(user, span_warning("Здесь нет крови, чтобы слизывать."))
 		return FALSE
 	var/datum/component/dawnwalker/component = user.GetComponent(/datum/component/dawnwalker)
 	component?.adjust_vitae(user, consumed)
 	user.add_stress(/datum/stressevent/bloodlick)
-	to_chat(user, span_notice("I lick the blood from the ground."))
+	to_chat(user, span_notice("Я слизываю кровь с земли."))
 	return TRUE

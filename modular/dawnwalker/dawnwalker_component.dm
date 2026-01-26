@@ -57,8 +57,8 @@
 /datum/component/dawnwalker/proc/update_bloodpool_display(mob/living/carbon/human/H)
 	if(!H || !dawnwalker_bloodpool)
 		return
-	dawnwalker_bloodpool.name = "Vitae: [dawnwalker_vitae]"
-	dawnwalker_bloodpool.desc = "Vitae: [dawnwalker_vitae]/[max_vitae]"
+	dawnwalker_bloodpool.name = "Витэ: [dawnwalker_vitae]"
+	dawnwalker_bloodpool.desc = "Витэ: [dawnwalker_vitae]/[max_vitae]"
 	if(dawnwalker_vitae <= 0 || max_vitae <= 0)
 		dawnwalker_bloodpool.set_value(0, 1 SECONDS)
 	else
@@ -155,7 +155,7 @@
 	var/turf/T = H.loc
 	if(!T.can_see_sky())
 		if(in_sunlight)
-			to_chat(H, span_notice("The sun's gaze fades from my skin."))
+			to_chat(H, span_notice("Солнечный взгляд отступает от моей кожи."))
 		in_sunlight = FALSE
 		return
 	var/hour = FLOOR(station_time() / 36000, 1)
@@ -166,7 +166,7 @@
 		in_sunlight = FALSE
 		return
 	if(!in_sunlight)
-		to_chat(H, span_danger("Hunger boils in my veins as the sun sears me!"))
+		to_chat(H, span_danger("Голод бурлит в моих жилах, пока солнце обжигает меня!"))
 		in_sunlight = TRUE
 	H.apply_status_effect(/datum/status_effect/buff/dawnwalker_rage)
 	if(H.has_status_effect(/datum/status_effect/buff/dawnwalker_rage))
@@ -174,7 +174,7 @@
 		H.adjustFireLoss(15, 0)
 		if(prob(20))
 			H.adjustFireLoss(60, 0)
-			to_chat(H, span_userdanger("The sun rends my raging flesh apart!"))
+			to_chat(H, span_userdanger("Солнце разрывает мою разъярённую плоть!"))
 	else
 		H.fire_act(1, 2)
 	if(dawnwalker_vitae > 0)
@@ -189,7 +189,7 @@
 	H.adjustFireLoss(max(1, round(healing_on_tick * 0.5)), 0)
 	if(last_miracle_warning + 10 SECONDS < world.time)
 		last_miracle_warning = world.time
-		to_chat(H, span_warning("The miracle stings, turning my flesh to ash."))
+		to_chat(H, span_warning("Чудо жжёт, обращая мою плоть в пепел."))
 
 /datum/component/dawnwalker/proc/handle_low_vitae_frenzy(mob/living/carbon/human/H)
 	if(dawnwalker_vitae >= 50)
@@ -220,14 +220,14 @@
 		var/mob/living/carbon/human/examiner = user
 		if(istype(examiner) && examiner.mind?.has_antag_datum(/datum/antagonist/vampire))
 			examiner.add_stress(/datum/stressevent/dawnwalker_vampire_disgust)
-			examine_list += span_boldnotice("A filthy wretch.")
+			examine_list += span_boldnotice("Грязный выродок.")
 			addtimer(CALLBACK(src, PROC_REF(handle_vampire_examine_reaction), examiner, H), 1)
 
 /datum/component/dawnwalker/proc/handle_vampire_examine_reaction(mob/living/carbon/human/examiner, mob/living/carbon/human/target)
 	if(!istype(examiner) || !istype(target))
 		return
 	if(prob(95))
-		examiner.say("[target.name], you filthy wretch!!!")
+		examiner.say("[target.name], грязный выродок!!!")
 		examiner.emote("scream", forced = TRUE)
 		examiner.playsound_local(examiner, pick('sound/vo/male/gen/scream (1).ogg','sound/vo/male/gen/scream (2).ogg'), 125, TRUE)
 

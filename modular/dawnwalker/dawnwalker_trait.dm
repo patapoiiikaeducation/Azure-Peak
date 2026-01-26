@@ -1,7 +1,7 @@
 /datum/special_trait/dawnwalker
-	name = "Dawnwalker"
-	greet_text = span_warning("I walk as a dawnwalker, living yet cursed. Blood steadies me, silver weakens me, and miracles scald my flesh.")
-	req_text = "Living races only."
+	name = "Рассветный ходок"
+	greet_text = span_warning("Я иду как рассветный ходок, живой и проклятый. Кровь поддерживает меня, серебро ослабляет, а чудеса обжигают мою плоть.")
+	req_text = "Только живые расы."
 	weight = 20
 
 /datum/special_trait/dawnwalker/can_apply(mob/living/carbon/human/character)

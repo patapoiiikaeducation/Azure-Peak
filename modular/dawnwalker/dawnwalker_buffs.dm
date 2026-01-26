@@ -1,8 +1,8 @@
 #define DAWNWALKER_RAGE_FILTER "dawnwalker_rage"
 
 /atom/movable/screen/alert/status_effect/buff/dawnwalker_rage
-	name = "HUNGERFIRE"
-	desc = "Hunger and sunlight drive me into a burning frenzy."
+	name = "ГОЛОДОПЛАМЯ"
+	desc = "Голод и солнце ввергают меня в пылающее безумие."
 	icon_state = "bloodrage"
 
 /datum/status_effect/buff/dawnwalker_rage

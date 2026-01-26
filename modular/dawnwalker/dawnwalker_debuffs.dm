@@ -10,12 +10,12 @@
 		return FALSE
 	if(owner.has_status_effect(/datum/status_effect/buff/dawnwalker_rage))
 		owner.remove_status_effect(/datum/status_effect/buff/dawnwalker_rage)
-		owner.visible_message(span_warning("[owner] looks much weaker."), span_warning("Silver snuffs my fury. I look much weaker."))
+		owner.visible_message(span_warning("[owner] выглядит гораздо слабее."), span_warning("Серебро гасит мою ярость. Я выгляжу гораздо слабее."))
 	else
-		owner.visible_message(span_warning("[owner] looks much weaker."), span_warning("I look much weaker."))
+		owner.visible_message(span_warning("[owner] выглядит гораздо слабее."), span_warning("Я выгляжу гораздо слабее."))
 	return TRUE
 
 /atom/movable/screen/alert/status_effect/debuff/dawnwalker_silver
-	name = "Silvered"
-	desc = "Silver drains my strength."
+	name = "Опаляющее серебро"
+	desc = "Серебро вытягивает мою силу."
 	icon_state = "bleed2"
