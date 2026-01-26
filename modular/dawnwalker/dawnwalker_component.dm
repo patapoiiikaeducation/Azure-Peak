@@ -52,6 +52,8 @@
 /datum/component/dawnwalker/proc/initialize_vitae(mob/living/carbon/human/H)
 	if(dawnwalker_vitae <= 0)
 		dawnwalker_vitae = max_vitae
+	if(H.maxbloodpool < max_vitae)
+		H.maxbloodpool = max_vitae
 	update_bloodpool_display(H)
 
 /datum/component/dawnwalker/proc/update_bloodpool_display(mob/living/carbon/human/H)
