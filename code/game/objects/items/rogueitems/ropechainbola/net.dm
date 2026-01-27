@@ -12,12 +12,14 @@
 	gender = NEUTER
 	throw_speed = 2
 	var/knockdown = 0
+	var/ensnare_applied = FALSE
 
 /obj/item/net/Initialize()
 	. = ..()
 	RegisterSignal(src, COMSIG_ITEM_DROPPED, PROC_REF(on_drop))
 
 /obj/item/net/proc/on_drop()
+	SIGNAL_HANDLER
 	remove_effect()
 
 /obj/item/net/proc/remove_effect()
@@ -37,26 +39,40 @@
 	playsound(src.loc,'sound/blank.ogg', 75, TRUE)
 
 /obj/item/net/throw_impact(atom/hit_atom, datum/thrownthing/throwingdatum)
-	if(..() || !iscarbon(hit_atom))//if it gets caught or the target can't be cuffed,
-		return//abort
-	ensnare(hit_atom)
-	// Nets always fall off after 30 seconds resist or not, so that the advantage it brings you is limited
-	// Being hit by a net and instalossing isn't fun for anyone because removing can be interrupted
-	addtimer(CALLBACK(src, PROC_REF(remove_effect)), 30 SECONDS, TIMER_OVERRIDE|TIMER_UNIQUE)
+	if(..() || !iscarbon(hit_atom)) // if it gets caught or the target can't be cuffed, abort
+		return
+	if(ensnare_applied)
+		return
+
+	var/mob/living/carbon/target = hit_atom
+	var/mob/living/user = throwingdatum?.thrower
+	if(user && target.checkdefense(null, user))
+		return
+
+	ensnare(target)
+	addtimer(
+	CALLBACK(src, PROC_REF(remove_effect)),
+	30 SECONDS,
+	TIMER_OVERRIDE | TIMER_UNIQUE
+)
 
 /obj/item/net/proc/ensnare(mob/living/carbon/C)
-	if(!C.legcuffed && C.get_num_legs(FALSE) >= 2)
-		visible_message("<span class='danger'>\The [src] ensnares [C]!</span>")
-		C.legcuffed = src
-		forceMove(C)
-		C.update_inv_legcuffed()
-		SSblackbox.record_feedback("tally", "handcuffs", 1, type)
-		to_chat(C, "<span class='danger'>\The [src] entraps you!</span>")
-		C.Knockdown(knockdown)
-		C.apply_status_effect(/datum/status_effect/debuff/netted)
-		playsound(src, 'sound/blank.ogg', 50, TRUE)
+	if(ensnare_applied)
+		return
+	if(C.legcuffed || C.get_num_legs(FALSE) < 2)
+		return
 
-// Failsafe in case the item somehow ends up being destroyed
-/obj/item/net/Destroy()
-	remove_effect()
-	return ..()
+	ensnare_applied = TRUE
+
+	visible_message("<span class='danger'>\The [src] ensnares [C]!</span>")
+	C.legcuffed = src
+	forceMove(C)
+	C.update_inv_legcuffed()
+	SSblackbox.record_feedback("tally", "handcuffs", 1, type)
+	to_chat(C, "<span class='danger'>\The [src] entraps you!</span>")
+	C.Knockdown(knockdown)
+	C.apply_status_effect(/datum/status_effect/debuff/netted)
+	playsound(src, 'sound/blank.ogg', 50, TRUE)
+
+	// Nets always fall off after 30 seconds resist or not, so that the advantage it brings you is limited
+	// Being hit
