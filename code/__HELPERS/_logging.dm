@@ -244,7 +244,11 @@
 
 /* storyteller logging */
 /proc/log_storyteller(text, list/data)
-	WRITE_LOG(GLOB.world_game_log, "STORYTELLERS: [text]")
+	var/entry = "\[[logtime]] STORYTELLERS: [text]"
+	if(GLOB.storyteller_log)
+		WRITE_LOG(GLOB.storyteller_log, entry)
+	else
+		WRITE_LOG(GLOB.world_game_log, entry)
 
 /* For logging round startup. */
 /proc/start_log(log)

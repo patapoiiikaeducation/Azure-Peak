@@ -97,8 +97,40 @@
 		influence_factors[selected_stat] = current_set[selected_stat]
 
 
+
+/datum/storyteller/proc/serialize_storyteller_value(value)
+	if(isnull(value))
+		return "null"
+	if(islist(value))
+		var/list/as_list = value
+		return "list(len=[length(as_list)]): [as_list]"
+	return "[value]"
+
+/datum/storyteller/proc/build_storyteller_state_dump()
+	var/list/var_names = list()
+	for(var/var_name in vars)
+		var_names += "[var_name]"
+	var_names = sortList(var_names)
+
+	var/list/state_lines = list()
+	for(var/var_name in var_names)
+		var/current_value = vars[var_name]
+		state_lines += "[var_name]=[serialize_storyteller_value(current_value)]"
+
+	return jointext(state_lines, " | ")
+
+/datum/storyteller/proc/log_storyteller_task_state(task_name, phase, detail = "")
+	var/state_dump = build_storyteller_state_dump()
+	var/message = "[name] ([type]) task='[task_name]' phase='[phase]'"
+	if(detail)
+		message += " detail='[detail]'"
+	message += " state={ [state_dump] }"
+	log_storyteller(message)
+
 /datum/storyteller/process()
+	log_storyteller_task_state("process", "before")
 	if(!round_started || disable_distribution) // we are differing roundstarted ones until base roundstart so we can get cooler stuff
+		log_storyteller_task_state("process", "after", "skipped_round_not_started_or_distribution_disabled")
 		return
 
 	if(!guarantees_roundstart_roleset && prob(roundstart_prob) && !roundstart_checks)
@@ -115,9 +147,11 @@
 
 	add_points(1)
 	handle_tracks()
+	log_storyteller_task_state("process", "after")
 
 /// Add points to all tracks while respecting the multipliers.
 /datum/storyteller/proc/add_points(seconds_per_tick)
+	log_storyteller_task_state("add_points", "before", "seconds_per_tick=[seconds_per_tick]")
 	var/datum/controller/subsystem/gamemode/mode = SSgamemode
 	var/base_point = EVENT_POINT_GAINED_PER_SECOND * seconds_per_tick * mode.event_frequency_multiplier
 	for(var/track in mode.event_track_points)
@@ -131,18 +165,22 @@
 			point_gain *= mode.current_pop_scale_multipliers[track]
 		mode.event_track_points[track] += point_gain
 		mode.last_point_gains[track] = point_gain
+	log_storyteller_task_state("add_points", "after")
 
 /// Goes through every track of the gamemode and checks if it passes a threshold to buy an event, if does, buys one.
 /datum/storyteller/proc/handle_tracks()
+	log_storyteller_task_state("handle_tracks", "before")
 	. = FALSE //Has return value for the roundstart loop
 	var/datum/controller/subsystem/gamemode/mode = SSgamemode
 	for(var/track in mode.event_track_points)
 		var/points = mode.event_track_points[track]
 		if(points >= mode.point_thresholds[track] && find_and_buy_event_from_track(track))
 			. = TRUE
+	log_storyteller_task_state("handle_tracks", "after", "result=[.]")
 
 /// Find and buy a valid event from a track.
 /datum/storyteller/proc/find_and_buy_event_from_track(track)
+	log_storyteller_task_state("find_and_buy_event_from_track", "before", "track=[track]")
 	. = FALSE
 	var/are_forced = forced
 	var/datum/controller/subsystem/gamemode/mode = SSgamemode
@@ -158,6 +196,7 @@
 		if(mode.active_players < pop_required)
 			message_admins("Storyteller failed to pick an event for track of [track] due to insufficient population. (required: [pop_required] active pop for [track]. Current: [mode.active_players])")
 			mode.event_track_points[track] *= TRACK_FAIL_POINT_PENALTY_MULTIPLIER
+			log_storyteller_task_state("find_and_buy_event_from_track", "after", "track=[track], failed=min_pop")
 			return
 		calculate_weights(track)
 		var/list/valid_events = list()
@@ -178,6 +217,7 @@
 		if(!length(valid_events))
 			message_admins("Storyteller failed to pick an event for track of [track].")
 			mode.event_track_points[track] *= TRACK_FAIL_POINT_PENALTY_MULTIPLIER
+			log_storyteller_task_state("find_and_buy_event_from_track", "after", "track=[track], failed=no_valid_events")
 			return
 		picked_event = pickweight(valid_events)
 		if(!picked_event)
@@ -192,27 +232,34 @@
 				message_admins("WARNING: Storyteller picked a null from event pool. Aborting event roll.")
 				stack_trace("WARNING: Storyteller picked a null from event pool.")
 				SSgamemode.event_track_points[track] = 0
+				log_storyteller_task_state("find_and_buy_event_from_track", "after", "track=[track], failed=null_pick")
 				return
 	buy_event(picked_event, track, are_forced)
 	. = TRUE
+	log_storyteller_task_state("find_and_buy_event_from_track", "after", "track=[track], picked=[picked_event]")
 
 ///Attempt to buy a specific event if we can afford it, otherwise returns FALSE, note this does NOT take cost variance into account
 /datum/storyteller/proc/try_buy_event(datum/round_event_control/bought_event)
+	log_storyteller_task_state("try_buy_event", "before", "event=[bought_event]")
 	if(ispath(bought_event))
 		bought_event = locate(bought_event) in SSevents.control //might be able to make this slightly cheaper by searching in the track sorted list
 	var/track = bought_event.track
 	if(!track || (bought_event in SSgamemode.uncategorized))
+		log_storyteller_task_state("try_buy_event", "after", "failed=invalid_track_or_uncategorized")
 		return FALSE //trackless events cant be bought
 
 	var/datum/controller/subsystem/gamemode/mode = SSgamemode
 	if(mode.event_track_points[track] - (bought_event.cost * mode.point_thresholds[track]) < 0)
+		log_storyteller_task_state("try_buy_event", "after", "failed=insufficient_points")
 		return FALSE
 
 	buy_event(bought_event, track)
+	log_storyteller_task_state("try_buy_event", "after", "result=TRUE")
 	return TRUE
 
 /// Find and buy a valid event from a track.
 /datum/storyteller/proc/buy_event(datum/round_event_control/bought_event, track, forced = FALSE)
+	log_storyteller_task_state("buy_event", "before", "event=[bought_event], track=[track], forced=[forced]")
 	if(!track)
 		track = bought_event.track
 
@@ -230,9 +277,11 @@
 	else
 		mode.schedule_event(bought_event, 3 MINUTES, total_cost, _forced = forced)
 	SSgamemode.triggered_round_events |= bought_event.name
+	log_storyteller_task_state("buy_event", "after", "event=[bought_event], track=[track], total_cost=[total_cost]")
 
 /// Calculates the weights of the events from a passed track.
 /datum/storyteller/proc/calculate_weights(track)
+	log_storyteller_task_state("calculate_weights", "before", "track=[track]")
 	var/datum/controller/subsystem/gamemode/mode = SSgamemode
 	for(var/datum/round_event_control/event as anything in mode.event_pools[track])
 		var/weight_total = event.weight
@@ -248,4 +297,5 @@
 			weight_total -= event.reoccurence_penalty_multiplier * weight_total * (1 - (event_repetition_multiplier ** occurences))
 		/// Write it
 		event.calculated_weight = weight_total
+	log_storyteller_task_state("calculate_weights", "after", "track=[track]")
 
