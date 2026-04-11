@@ -5,7 +5,7 @@ Generated for Azure-Peak from active `COMSIG_*` defines and real `SEND_SIGNAL`/`
 - Movement-related signals detected: **42**
 - Signals with real `SEND_SIGNAL` senders: **23**
 - Signals used by `RegisterSignal`/`UnregisterSignal`: **21**
-- Important migration note: Azure-Peak does not emit `COMSIG_MOB_CLIENT_PRE_MOVE`, `COMSIG_MOB_CLIENT_MOVED`, pull lifecycle COMSIGs, or movetype flag COMSIGs. Use the direct procs listed below.
+- Use direct procs for client input, pull/grab state, and movetype changes.
 
 ## Canonical Entry Files
 
@@ -23,13 +23,11 @@ Generated for Azure-Peak from active `COMSIG_*` defines and real `SEND_SIGNAL`/`
 
 | Signal | Azure-Peak status | Primary files |
 |---|---|---|
-| `COMSIG_MOB_CLIENT_PRE_MOVE` | [DEPRECATED/NOT FOUND] | `` |
-| `COMSIG_MOB_CLIENT_MOVED` | [DEPRECATED/NOT FOUND] | `` |
 | `COMSIG_MOVABLE_PRE_MOVE` | defined + emitted | `code/__DEFINES/components.dm` |
 | `COMSIG_MOVABLE_MOVED` | defined + emitted | `code/__DEFINES/components.dm` |
 | `COMSIG_MOVABLE_CROSS` | defined + emitted | `code/__DEFINES/components.dm` |
 | `COMSIG_MOVABLE_CROSSED` | defined + emitted | `code/__DEFINES/components.dm` |
-| `COMSIG_MOVABLE_UNCROSSED` | defined/listened; sender not found | `code/__DEFINES/components.dm` |
+| `COMSIG_MOVABLE_UNCROSSED` | defined/listened; no sender in current scan | `code/__DEFINES/components.dm` |
 | `COMSIG_MOVABLE_BUMP` | defined + emitted | `code/__DEFINES/components.dm` |
 | `COMSIG_MOVABLE_UPDATE_GLIDE_SIZE` | defined + emitted | `code/__DEFINES/components.dm, code/__DEFINES/dcs/signals_atoms/signals_atom_movable.dm` |
 | `COMSIG_MOVABLE_Z_CHANGED` | defined + emitted | `code/__DEFINES/components.dm` |
@@ -37,46 +35,40 @@ Generated for Azure-Peak from active `COMSIG_*` defines and real `SEND_SIGNAL`/`
 | `COMSIG_MOVABLE_IMPACT_ZONE` | defined + emitted | `code/__DEFINES/components.dm` |
 | `COMSIG_MOVABLE_PRE_THROW` | defined + emitted | `code/__DEFINES/components.dm` |
 | `COMSIG_MOVABLE_POST_THROW` | defined + emitted | `code/__DEFINES/components.dm` |
-| `COMSIG_MOVABLE_THROW_LANDED` | defined/listened; sender not found | `code/__DEFINES/dcs/signals_atoms/signals_atom_movable.dm` |
+| `COMSIG_MOVABLE_THROW_LANDED` | defined/listened; no sender in current scan | `code/__DEFINES/dcs/signals_atoms/signals_atom_movable.dm` |
 | `COMSIG_MOVABLE_PREBUCKLE` | defined + emitted | `code/__DEFINES/dcs/signals/signals_movable.dm` |
 | `COMSIG_MOVABLE_BUCKLE` | defined + emitted | `code/__DEFINES/dcs/signals/signals_movable.dm` |
 | `COMSIG_MOVABLE_UNBUCKLE` | defined + emitted | `code/__DEFINES/dcs/signals/signals_movable.dm` |
-| `COMSIG_RIDDEN_DRIVER_MOVE` | defined/listened; sender not found | `code/__DEFINES/dcs/signals/signals_movable.dm` |
-| `COMSIG_LIVING_START_PULL` | [DEPRECATED/NOT FOUND] | `` |
-| `COMSIG_ATOM_CAN_BE_PULLED` | [DEPRECATED/NOT FOUND] | `` |
-| `COMSIG_ATOM_NO_LONGER_PULLED` | [DEPRECATED/NOT FOUND] | `` |
-| `COMSIG_ATOM_NO_LONGER_PULLING` | [DEPRECATED/NOT FOUND] | `` |
-| `COMSIG_MOVETYPE_FLAG_ENABLED` | [DEPRECATED/NOT FOUND] | `` |
-| `COMSIG_MOVETYPE_FLAG_DISABLED` | [DEPRECATED/NOT FOUND] | `` |
+| `COMSIG_RIDDEN_DRIVER_MOVE` | defined/listened; no sender in current scan | `code/__DEFINES/dcs/signals/signals_movable.dm` |
 | `COMSIG_MOVELOOP_START` | defined + emitted | `code/__DEFINES/dcs/signals/signals_moveloop.dm` |
 | `COMSIG_MOVELOOP_STOP` | defined + emitted | `code/__DEFINES/dcs/signals/signals_moveloop.dm` |
 | `COMSIG_MOVELOOP_PREPROCESS_CHECK` | defined + emitted | `code/__DEFINES/dcs/signals/signals_moveloop.dm` |
 | `COMSIG_MOVELOOP_POSTPROCESS` | defined + emitted | `code/__DEFINES/dcs/signals/signals_moveloop.dm` |
-| `COMSIG_MOVELOOP_JPS_REPATH` | defined; sender not found | `code/__DEFINES/dcs/signals/signals_moveloop.dm` |
+| `COMSIG_MOVELOOP_JPS_REPATH` | defined; no sender in current scan | `code/__DEFINES/dcs/signals/signals_moveloop.dm` |
 
 ## Additional Movable/Moveloop Signals
 
 | Signal | Azure-Peak status | Primary files |
 |---|---|---|
-| `COMSIG_MOVABLE_BUMP_PUSHED` | defined/listened; sender not found | `code/__DEFINES/dcs/signals_atoms/signals_atom_movable.dm` |
-| `COMSIG_MOVABLE_DISPOSING` | defined; sender not found | `code/__DEFINES/components.dm, code/__DEFINES/dcs/signals_atoms/signals_atom_movable.dm` |
+| `COMSIG_MOVABLE_BUMP_PUSHED` | defined/listened; no sender in current scan | `code/__DEFINES/dcs/signals_atoms/signals_atom_movable.dm` |
+| `COMSIG_MOVABLE_DISPOSING` | defined; no sender in current scan | `code/__DEFINES/components.dm, code/__DEFINES/dcs/signals_atoms/signals_atom_movable.dm` |
 | `COMSIG_MOVABLE_HEAR` | defined + emitted | `code/__DEFINES/components.dm` |
-| `COMSIG_MOVABLE_LIGHT_OVERLAY_SET_COLOR` | defined; sender not found | `code/__DEFINES/dcs/signals_atoms/movable_lighting.dm` |
-| `COMSIG_MOVABLE_LIGHT_OVERLAY_SET_POWER` | defined; sender not found | `code/__DEFINES/dcs/signals_atoms/movable_lighting.dm` |
-| `COMSIG_MOVABLE_LIGHT_OVERLAY_SET_RANGE` | defined; sender not found | `code/__DEFINES/dcs/signals_atoms/movable_lighting.dm` |
-| `COMSIG_MOVABLE_LIGHT_OVERLAY_TOGGLE_ON` | defined; sender not found | `code/__DEFINES/dcs/signals_atoms/movable_lighting.dm` |
+| `COMSIG_MOVABLE_LIGHT_OVERLAY_SET_COLOR` | defined; no sender in current scan | `code/__DEFINES/dcs/signals_atoms/movable_lighting.dm` |
+| `COMSIG_MOVABLE_LIGHT_OVERLAY_SET_POWER` | defined; no sender in current scan | `code/__DEFINES/dcs/signals_atoms/movable_lighting.dm` |
+| `COMSIG_MOVABLE_LIGHT_OVERLAY_SET_RANGE` | defined; no sender in current scan | `code/__DEFINES/dcs/signals_atoms/movable_lighting.dm` |
+| `COMSIG_MOVABLE_LIGHT_OVERLAY_TOGGLE_ON` | defined; no sender in current scan | `code/__DEFINES/dcs/signals_atoms/movable_lighting.dm` |
 | `COMSIG_MOVABLE_SECLUDED_LOCATION` | defined + emitted | `code/__DEFINES/components.dm` |
-| `COMSIG_MOVABLE_SET_GRAB_STATE` | defined; sender not found | `code/__DEFINES/dcs/signals_atoms/signals_atom_movable.dm` |
+| `COMSIG_MOVABLE_SET_GRAB_STATE` | defined; no sender in current scan | `code/__DEFINES/dcs/signals_atoms/signals_atom_movable.dm` |
 | `COMSIG_MOVABLE_TURF_ENTERED` | defined + emitted | `code/__DEFINES/dcs/signals/signals_turf.dm` |
 | `COMSIG_MOVABLE_TURF_EXITED` | defined + emitted | `code/__DEFINES/dcs/signals/signals_turf.dm` |
 
 ## Practical Routing
 
-- For player input bugs, start at `/client/Move` in `code/modules/mob/mob_movement.dm`; imported `COMSIG_MOB_CLIENT_*` hooks are `[DEPRECATED/NOT FOUND]` here.
+- For player input bugs, start at `/client/Move` in `code/modules/mob/mob_movement.dm`.
 - For successful-step side effects, use `COMSIG_MOVABLE_MOVED` listeners and the `Moved()` sender in `code/game/atoms_movable.dm`.
-- For pull/drag behavior, inspect `start_pulling`, `stop_pulling`, `Move_Pulled`, and `can_be_pulled`; imported pull COMSIGs are `[DEPRECATED/NOT FOUND]`.
-- For movetype changes, inspect `setMovetype()` and direct `movement_type` bitfield writes; imported `COMSIG_MOVETYPE_FLAG_*` hooks are `[DEPRECATED/NOT FOUND]`.
-- Treat `COMSIG_MOVABLE_THROW_LANDED` and `COMSIG_MOVABLE_UNCROSSED` carefully: they are defined/listened in places, but this scan found no real core `SEND_SIGNAL` sender in Azure-Peak.
+- For pull/drag behavior, inspect `start_pulling`, `stop_pulling`, `Move_Pulled`, and `can_be_pulled`.
+- For movetype changes, inspect `setMovetype()` and direct `movement_type` bitfield writes.
+- Treat `COMSIG_MOVABLE_THROW_LANDED` and `COMSIG_MOVABLE_UNCROSSED` carefully: they are defined/listened in places, but this scan did not find a core `SEND_SIGNAL` sender in Azure-Peak.
 
 ## Fast Search Patterns
 

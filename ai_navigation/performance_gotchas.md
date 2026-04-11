@@ -80,7 +80,7 @@ Azure-Peak performance hazards. Read `ai_navigation/engine_limits.md` first for 
 
 **Fix:** Prefer targeted sends and smaller `ui_data`. Update only the state that changed.
 
-**Repo anchor:** `code/modules/tgui/**`, `code/modules/tgui_input/**`, `code/modules/tgui_panel/**`, `code/modules/tgchat/**`, sound subsystems. `[DEPRECATED/NOT FOUND: code/modules/visual_ui/**]`.
+**Repo anchor:** `code/modules/tgui/**`, `code/modules/tgui_input/**`, `code/modules/tgui_panel/**`, `code/modules/tgchat/**`, sound subsystems.
 
 ## 9. Excessive Unique Overlay Combinations
 
@@ -111,14 +111,5 @@ Azure-Peak performance hazards. Read `ai_navigation/engine_limits.md` first for 
 **Fix:** Use existing flag helpers/macros and define new flags near the owning `code/__DEFINES/**` file. Prefer existing `ENABLE_BITFIELD` / `DISABLE_BITFIELD` style where present.
 
 **Repo anchor:** `code/__DEFINES/flags.dm`, `code/__DEFINES/**`.
-
-## 12. Deprecated Imported Performance Anchors
-
-| Imported anchor | Status |
-|---|---|
-| `code/modules/visual_ui/**` | `[DEPRECATED/NOT FOUND]`; use TGUI/interface/appearance paths. |
-| `SSmagic`, `SSstatusprocess` | `[DEPRECATED/NOT FOUND]`; inspect direct spell/action/status code. |
-| `SSanvil`, `SSfishing`, `SSenchantment` | `[DEPRECATED/NOT FOUND]`; inspect crafting/farming/fisher paths directly. |
-| `SSgreyscale`, `code/datums/greyscale/**` | `[DEPRECATED/NOT FOUND]`; use icon/appearance paths directly. |
 
 Cross-references: `ai_navigation/processing_hazards.md`, `ai_navigation/runtime_flow.md`, `ai_navigation/visuals_guide.md`, `ai_navigation/coding_standards.md`.

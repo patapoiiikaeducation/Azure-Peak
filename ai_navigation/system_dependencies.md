@@ -6,7 +6,7 @@ Generated for Azure-Peak. Use this when a change crosses system boundaries and y
 |---|---|---|---|
 | World bootstrap | master controller, subsystem discovery, atom initialization | `Master`, `SSatoms`, target `SS*` | `code/world.dm`, `code/controllers/master.dm`, `code/controllers/subsystem.dm`, `code/controllers/subsystem/atoms.dm` |
 | Jobs / migrants / role classes | mob spawn, loadout, class selection, later antag overlays | `SSjob`, `SSmigrants`, `SSrole_class_handler` | `code/modules/jobs/**`, `code/datums/migrants/**`, `modular/code/modules/jobs/**` |
-| Actions / spells | status effects, cooldowns, mob/item effects, components/elements | direct action/spell code, `SSskills`, `SSmood`; `[DEPRECATED/NOT FOUND: SSmagic]`, `[DEPRECATED/NOT FOUND: SSstatusprocess]` | `code/modules/spells/**`, `code/datums/actions/**`, `code/datums/status_effects/**` |
+| Actions / spells | status effects, cooldowns, mob/item effects, components/elements | direct action/spell code, `SSskills`, `SSmood` | `code/modules/spells/**`, `code/datums/actions/**`, `code/datums/status_effects/**` |
 | Combat | click chain, mob defense, projectiles, movement and signals | `SSdcs`, `SSprojectiles`, direct combat procs | `code/_onclick/**`, `code/modules/mob/living/combat/**`, `code/modules/projectiles/**` |
 | Movement | client input, movable signals, pull/buckle/throw, moveloops | `SSmovement`, `SSmove_manager`, `SSthrowing`, `SSdcs` | `code/modules/mob/mob_movement.dm`, `code/game/atoms_movable.dm`, `code/game/objects/buckling.dm`, `code/controllers/subsystem/movement/**` |
 | AI | mob state, behavior trees, movement/pathing, combat targets | `SSai_controllers`, `SSai_behaviors`, `SSai_movement`, `SSaggro` | `code/datums/ai/**`, `code/controllers/subsystem/ai_controller.dm`, `code/controllers/subsystem/processing/ai_behaviours.dm` |
@@ -19,15 +19,3 @@ Generated for Azure-Peak. Use this when a change crosses system boundaries and y
 | Sex/arousal | sexcon datums, components, chat/mob state, modular processing | `SSsex`, `SSdcs` | `code/datums/sexcon2/**`, `code/modules/sexcon/**`, `modular/code/controllers/subsystem/processing/sex.dm` |
 | UI / TGUI / browser | DM UI datums -> gameplay datum/mob -> frontend state | `SStgui`, `SSchat`, `SSstatpanel` | `code/modules/tgui/**`, `code/modules/tgui_input/**`, `code/modules/tgui_panel/**`, `interface/**`, `tgui/packages/**` |
 | Visuals / overlays / icon smoothing | atom appearance, overlay caches, vis overlays, network output | `SSoverlays`, `SSvis_overlays`, `SSdamoverlays`, `SSicon_smooth` | `code/controllers/subsystem/overlays.dm`, `code/controllers/subsystem/vis_overlays.dm`, `code/controllers/subsystem/rogue/damoverlays.dm`, `code/controllers/subsystem/icon_smooth.dm` |
-
-## Deprecated Dependency Names From Imported Layer
-
-| Imported dependency | Azure-Peak replacement or status |
-|---|---|
-| `modular_rmh/**` | `[DEPRECATED/NOT FOUND]`; use verified `modular/**` paths only. |
-| `SSmagic`, `SSstatusprocess` | `[DEPRECATED/NOT FOUND]`; inspect direct spell/action/status datums. |
-| `SSanvil`, `SSfishing`, `SSenchantment` | `[DEPRECATED/NOT FOUND]`; use `SSskills`, `SSfarming`, direct crafting/fisher job paths. |
-| `SShousing`, `code/controllers/subsystem/property_management.dm` | `[DEPRECATED/NOT FOUND]`; use economy/treasury/merchant/faction paths. |
-| `SSvisual_ui`, `code/modules/visual_ui/**` | `[DEPRECATED/NOT FOUND]`; use TGUI/interface paths. |
-| `SSgreyscale`, `code/datums/greyscale/**` | `[DEPRECATED/NOT FOUND]`; use icon/appearance systems directly. |
-| `SSterrain_generation`, `SSliquids` | `[DEPRECATED/NOT FOUND]`; use `SSmapgen` and `SSfluids`/weather paths as relevant. |

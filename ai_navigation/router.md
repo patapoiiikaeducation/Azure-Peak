@@ -9,7 +9,6 @@ Generated for Azure-Peak. This is the primary Fast Start entrypoint for normal t
 | before any medium / high / unclear-scope edit | open `ai_navigation/human_checking.md` first |
 | navigation docs say something does not exist or give no result | do not conclude it is absent; verify with direct `rg` / file search first |
 | navigation lookup returns nothing for an SS*, proc, type, or system | search `code/` and `modular/` directly; if found, use it and flag the navigation gap |
-| a file is marked `[DEPRECATED/NOT FOUND]` | do not use it as a real route unless a new search proves it now exists |
 | you used navigation and got an unexpected result | say navigation may be stale, then verify directly |
 
 ## Dispatch
@@ -33,7 +32,7 @@ Generated for Azure-Peak. This is the primary Fast Start entrypoint for normal t
 | runtime error to diagnose or fix | `ai_navigation/runtime_errors.md` |
 | qdel, del, Destroy(), ref leak | `ai_navigation/runtime_errors.md` -> `ai_navigation/coding_standards.md` |
 | overlays, underlays, Appearance objects, planes, filters, particles, lighting, animate(), render relays, multiz | `ai_navigation/visuals_guide.md` |
-| GAGS/greyscale/recolorable sprite request | `ai_navigation/visuals_guide.md`; note `[DEPRECATED/NOT FOUND: SSgreyscale]` in Azure-Peak |
+| recolorable sprite or sprite-layer request | `ai_navigation/visuals_guide.md` |
 | icon smoothing, smooth_icon, smoothing_flags, smoothing_groups, bitmask smoothing | `ai_navigation/icon_rendering.md` |
 | iconstate2appearance, icon2appearance, appearance cache, vis_contents cache | `ai_navigation/icon_rendering.md` |
 | performance, tick budget, CPU, server lag | `ai_navigation/engine_limits.md`, then `ai_navigation/performance_gotchas.md` |

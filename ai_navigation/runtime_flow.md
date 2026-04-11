@@ -35,7 +35,6 @@ Generated for Azure-Peak. Use this file when the question is about order of exec
 - Typical chain: user input/action button -> `/datum/action` or spell proc -> validation/cost/cooldown -> `apply_status_effect(...)` or direct mob/item change.
 - Runtime owners: direct action/spell/status datums, `SSskills`, sometimes `SSmood`.
 - Open first: `code/modules/spells/**`, `code/datums/actions/**`, `code/datums/status_effects/**`.
-- Imported owners `[DEPRECATED/NOT FOUND: SSmagic]` and `[DEPRECATED/NOT FOUND: SSstatusprocess]` are not present in Azure-Peak.
 
 ### 5. Signal and Component Reaction Path
 
@@ -48,7 +47,7 @@ Generated for Azure-Peak. Use this file when the question is about order of exec
 - Typical chain: `/client/Move` -> `/atom/movable/Move` -> `Moved/Cross/Crossed/Bump` -> optional pull/buckle/throw side path.
 - Runtime owners: `SSmovement`, `SSmove_manager`, `SSthrowing`, `SSdcs`.
 - Open first: `ai_navigation/movement_signal_map.md`, `code/modules/mob/mob_movement.dm`, `code/game/atoms_movable.dm`, `code/game/objects/buckling.dm`, `code/controllers/subsystem/movement/**`.
-- Imported client movement and pull COMSIGs are `[DEPRECATED/NOT FOUND]`; pulling uses direct procs.
+- Pulling uses direct procs.
 
 ### 7. AI Tick to Mob Action
 
@@ -61,21 +60,18 @@ Generated for Azure-Peak. Use this file when the question is about order of exec
 - Typical chain: map bootstrap/generation pass -> template placement or mapgen -> landmarks/spawners become available -> jobs/events/mobs use those locations.
 - Runtime owners: `SSmapping`, `SSminor_mapping`, `SSdungeon_generator`, `SSmapgen`, `SSpathfinder`.
 - Open first: `code/controllers/subsystem/mapping.dm`, `_maps/**`, `code/modules/mapping/**`, `code/modules/procedural_mapping/**`, `code/controllers/subsystem/processing/mapgen.dm`.
-- Imported `[DEPRECATED/NOT FOUND: SSterrain_generation]` is absent.
 
 ### 9. Questing and Contracts
 
 - Typical chain: contract ledger interaction -> quest datum selection -> scroll/object/component creation -> objective signal/proc updates -> ledger turn-in.
 - Runtime owners: `SSdcs`, `SSroguemachine`, player/ledger flow.
 - Open first: `code/modules/roguetown/roguemachine/questing/contract_ledger.dm`, `code/modules/roguetown/roguemachine/questing/types/**`, `code/modules/roguetown/roguemachine/questing/items/**`, `code/modules/roguetown/roguemachine/questing/questing_components.dm`, `code/__DEFINES/questing.dm`.
-- Imported `[DEPRECATED/NOT FOUND: code/modules/questing/**]` and ContractLedger TGUI files are absent.
 
 ### 10. UI Request to Gameplay State
 
 - Typical chain: UI interaction -> DM-side UI/TGUI datum -> underlying gameplay datum/mob/proc -> optional status/component update.
 - Runtime owners: `SStgui`, `SSchat`, `SSstatpanel`.
 - Open first: `code/modules/tgui/**`, `code/modules/tgui_input/**`, `code/modules/tgui_panel/**`, `interface/**`, `tgui/packages/**`.
-- Imported `[DEPRECATED/NOT FOUND: SSvisual_ui]` and `[DEPRECATED/NOT FOUND: code/modules/visual_ui/**]` are absent.
 
 ## Escalation Rules
 

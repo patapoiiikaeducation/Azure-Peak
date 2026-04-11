@@ -12,7 +12,7 @@ Use this skill to route work through the current Azure-Peak repository structure
 - Treat source files as the source of truth. If these docs disagree with code, trust code and report the mismatch.
 - Use the cheapest entrypoint that fits the task.
 - The repository agent guide is `ai_navigation/AGENTS.md`; do not look for a root `AGENTS.md`.
-- Do not use imported paths marked `[DEPRECATED/NOT FOUND]`; search source before reviving any old route.
+- Keep routes focused on the current Azure-Peak tree; do not preserve stale paths in the mapping.
 - After finding a core path in `code/**`, check whether `modular/**` extends the same type branch.
 - For broad, risky, or ambiguous work, read `human_checking.md` before editing gameplay code.
 
@@ -38,7 +38,7 @@ When asked to update or migrate this navigation layer:
 3. Regenerate or revalidate `subsystem_map.md` from actual `SS*` declarations.
 4. Revalidate movement, combat, spell, and general signal maps from current `COMSIG_*`, `SEND_SIGNAL`, and `RegisterSignal` usage.
 5. Recheck performance guidance against local idioms such as `CHECK_TICK`, `MC_TICK_CHECK`, `var/static/list`, typed `as anything` loops, and `START_PROCESSING` / `STOP_PROCESSING`.
-6. Mark absent imported systems as `[DEPRECATED/NOT FOUND]` instead of inventing replacements.
+6. Remove absent systems from the navigation layer.
 7. Validate Markdown paths with `rg`/`Test-Path` before finalizing.
 
 ## Current Azure-Peak Anchors
@@ -53,4 +53,4 @@ When asked to update or migrate this navigation layer:
 | Food/cooking | `modular/Neu_Food/code/**`, `code/modules/food_and_drinks/**` |
 | Gods/faith replacement route | `code/datums/gods/**` |
 | Sex/arousal | `code/datums/sexcon2/**`, `code/modules/sexcon/**`, `modular/code/controllers/subsystem/processing/sex.dm` |
-| Greyscale/GAGS import | `[DEPRECATED/NOT FOUND: SSgreyscale]`, `[DEPRECATED/NOT FOUND: code/datums/greyscale/**]` |
+| Visual/icon appearance | `ai_navigation/visuals_guide.md`, `ai_navigation/icon_rendering.md`, `code/controllers/subsystem/overlays.dm`, `code/controllers/subsystem/vis_overlays.dm` |

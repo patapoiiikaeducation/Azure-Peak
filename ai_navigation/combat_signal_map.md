@@ -56,14 +56,6 @@ Projectile travel overlaps with movement and bump behavior. If pathing or thrown
 | `code/datums/ai/subtrees/human_basic_attack.dm` | Sends target-set state during human NPC melee behavior. |
 | `code/datums/ai/subtrees/bow_usage.dm` | Sends target-set state during bow behavior. |
 
-Imported listener paths from the previous map are not present:
-
-| Imported path | Status |
-|---|---|
-| `code/datums/components/combat_noises.dm` | `[DEPRECATED/NOT FOUND]` in Azure-Peak. |
-| `code/datums/ai/behaviours/hostile/melee_attack.dm` | `[DEPRECATED/NOT FOUND]`; current path uses `code/datums/ai/behaviors/hostile/melee_attack.dm`. |
-| `code/datums/ai/subtrees/minotaur_melee.dm` | `[DEPRECATED/NOT FOUND]`; minotaur AI is in `code/datums/ai/controllers/minotaur.dm` and generic melee subtrees. |
-
 ## Cheap Search Order
 
 1. Open `code/_onclick/item_attack.dm` for held items or weapon effects.

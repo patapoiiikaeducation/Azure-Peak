@@ -45,14 +45,6 @@ Base proc chain:
 | `code/modules/spells/spell_cooldown_projectile.dm` | Sends `COMSIG_SPELL_PROJECTILE_HIT`. |
 | `code/modules/spells/spell_touch.dm` | Sends `COMSIG_SPELL_TOUCH_HAND_HIT`. |
 
-## Deprecated Imported Listener Paths
-
-| Imported path | Status |
-|---|---|
-| `code/datums/chimeric_organs/inputs/spell_cast.dm` | `[DEPRECATED/NOT FOUND]` in Azure-Peak. |
-| `code/datums/components/use_mana.dm` | `[DEPRECATED/NOT FOUND]` in Azure-Peak. |
-| Additional old jaunt/bloodcrawl spell signals beyond the active defines above | `[DEPRECATED/NOT FOUND]` unless a fresh `rg` finds them. |
-
 ## Cheap Search Order
 
 1. Open `code/modules/spells/spell_cooldown.dm`.

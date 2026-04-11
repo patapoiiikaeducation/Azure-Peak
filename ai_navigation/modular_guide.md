@@ -1,6 +1,6 @@
 # Azure Modular Guide
 
-`modular/` is a late-included overlay and content-pack layer for Azure-Peak. `[DEPRECATED/NOT FOUND: modular_rmh/]` is not present here.
+`modular/` is a late-included overlay and content-pack layer for Azure-Peak.
 
 ## What Late-Included Means
 
@@ -34,19 +34,6 @@
 | `modular/piercing/**` | Piercing content. |
 | `modular/ze_genesis_call/**` | Genesis call content. |
 
-## Imported Paths Not Present
-
-| Imported path | Status |
-|---|---|
-| `modular_rmh/**` | `[DEPRECATED/NOT FOUND]`; use `modular/**` only after verifying an equivalent path exists. |
-| `modular/code/datums/**` | `[DEPRECATED/NOT FOUND]` in current tree. Datums mostly live in core `code/datums/**`. |
-| `modular/code/modules/spells/**` | `[DEPRECATED/NOT FOUND]` in current tree. Use `code/modules/spells/**`. |
-| `modular/code/modules/mob/**` | `[DEPRECATED/NOT FOUND]` in current tree. Use `code/modules/mob/**`, plus `modular/code/modules/living/**` for speech/emote hooks. |
-| `modular/code/modules/clothing/**` | `[DEPRECATED/NOT FOUND]` in current tree. Use `code/modules/clothing/**`. |
-| `modular/code/modules/mapping/**` | `[DEPRECATED/NOT FOUND]` in current tree. Use `modular/Mapping/**` and core mapping paths. |
-| `modular/code/modules/client/**` | `[DEPRECATED/NOT FOUND]` in current tree. Use core `code/modules/client/**`. |
-| `modular/fluids/**`, `modular/comfy/**`, `modular/ceramics/**`, `modular/loot/**`, `modular/bush/**`, `modular/helpers/**`, `modular/resurrection_rune/**`, `modular/selectable_moanpacks/**` | `[DEPRECATED/NOT FOUND]` in current tree. |
-
 ## Where New Code Belongs
 
 | Adding... | Put it in |
@@ -61,7 +48,5 @@
 
 ## Key Rules
 
-- Do not assume old `[DEPRECATED/NOT FOUND: modular_rmh/**]` paths exist. Verify with `rg` or `Test-Path`.
-- Do not blindly map `[DEPRECATED/NOT FOUND: modular_rmh/modular/code/...]` to `modular/code/...`; most of those branches do not exist here.
 - For overlays/appearance changes, read `ai_navigation/performance_gotchas.md` first; per-tick `overlays +=` changes are expensive.
 - After locating a core path, search `modular/` for the same type branch before editing behavior that may be extended late.

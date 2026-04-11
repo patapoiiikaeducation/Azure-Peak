@@ -1,9 +1,9 @@
 # Coding Standards
 
-Updated for Azure-Peak on 2026-04-11. Adapted from imported BYOND/TG-derived standards and current source/tooling anchors.
+Updated for Azure-Peak on 2026-04-11 from BYOND/TG-derived standards and current source/tooling anchors.
 This file is the AI navigation layer's normative reference for code quality. When writing or reviewing code, treat these as hard requirements unless a maintainer explicitly overrides them.
 
-No root `[DEPRECATED/NOT FOUND: STANDARDS.md]`, `[DEPRECATED/NOT FOUND: STYLE.md]`, `[DEPRECATED/NOT FOUND: CI.md]`, or `[DEPRECATED/NOT FOUND: HARDDELETES.md]` file exists in this tree. If this file and source/tooling disagree, trust source/tooling.
+If this file and source/tooling disagree, trust source/tooling.
 
 ---
 
@@ -251,7 +251,7 @@ Registering the same signal twice on the same object is normally a bug and throw
 
 ## Garbage Collection and Hard Deletes
 
-This tree does not include a root `[DEPRECATED/NOT FOUND: HARDDELETES.md]`; use this section with `code/controllers/subsystem/garbage.dm`, `code/__DEFINES/qdel.dm`, and `_compile_options.dm`.
+Use this section with `code/controllers/subsystem/garbage.dm`, `code/__DEFINES/qdel.dm`, and `_compile_options.dm`.
 
 ### What causes a hard delete
 

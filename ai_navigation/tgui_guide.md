@@ -2,7 +2,7 @@
 
 Updated on 2026-04-11 for Azure-Peak / RogueTown.
 
-TGUI is the primary UI framework in this repository: DM backend objects expose data and actions, and React + TypeScript components render the browser UI. Use the live source paths below over imported source-codebase assumptions.
+TGUI is the primary UI framework in this repository: DM backend objects expose data and actions, and React + TypeScript components render the browser UI. Use the live source paths below.
 
 ---
 
@@ -26,7 +26,6 @@ ui_state() / ui_status()          -> access and visibility checks
 | Custom HTML window | `code/modules/tgui/tgui_window.dm` | Lower-level BYOND browser wrapper. |
 | Modal inputs | `code/modules/tgui_input/**` | `tgui_alert`, `tgui_input_text`, `tgui_input_number`, `tgui_input_list`, etc. |
 | TGUI panel/chat | `code/modules/tgui_panel/**`, `tgui/packages/tgui-panel/**` | Chat, audio, telemetry, panel frontend. |
-| Imported visual UI layer | `[DEPRECATED/NOT FOUND: code/modules/visual_ui/**]`, `[DEPRECATED/NOT FOUND: SSvisual_ui]` | Do not route UI work here in Azure-Peak. |
 
 ---
 
@@ -120,7 +119,7 @@ Azure-Peak routes components through:
 tgui/packages/tgui/routes.tsx
 ```
 
-`[DEPRECATED/NOT FOUND: tgui/packages/tgui/routes.ts]` is not present in this tree. `routes.tsx` uses `require.context('./interfaces')` and attempts these names:
+`routes.tsx` uses `require.context('./interfaces')` and attempts these names:
 
 | Route candidate | Meaning |
 |---|---|
@@ -235,7 +234,7 @@ bun tgui:test
 bun tgui:analyze
 ```
 
-`[DEPRECATED/NOT FOUND: bun tgui:clean]` is not present in `tgui/package.json` in this tree. Use the repo build tooling target if a clean is needed:
+Use the repo build tooling target if a clean is needed:
 
 ```powershell
 tools\build\build.bat tgui-clean
@@ -270,7 +269,7 @@ Example:
 | `data-component` | Component name whitelisted in `TGUI_CHAT_COMPONENTS`. |
 | `data-*` | Props mapped by the renderer; see `TGUI_CHAT_ATTRIBUTES_TO_PROPS` behavior in the renderer. |
 
-Imported docs may mention `[DEPRECATED/NOT FOUND: tgui/packages/tgui-panel/chat/renderer.js]`; in Azure-Peak the source file is `renderer.tsx`.
+The Azure-Peak chat renderer source file is `tgui/packages/tgui-panel/chat/renderer.tsx`.
 
 ---
 
@@ -309,17 +308,6 @@ Every `ui_act` implementation should:
 - Reject unknown action strings.
 - Return `TRUE` only after a handled state change.
 - Keep client-side checks as convenience only; never rely on them for access or authority.
-
----
-
-## Deprecated / Not Found Imports
-
-| Imported route | Azure-Peak status |
-|---|---|
-| `tgui/packages/tgui/routes.ts` | `[DEPRECATED/NOT FOUND]`; use `tgui/packages/tgui/routes.tsx`. |
-| `code/modules/visual_ui/**` | `[DEPRECATED/NOT FOUND]`; use `code/modules/tgui/**`, `code/modules/tgui_input/**`, `code/modules/tgui_panel/**`, and frontend `tgui/packages/**`. |
-| `SSvisual_ui` | `[DEPRECATED/NOT FOUND]`; use `SStgui`, `SSchat`, and `SSstatpanel` as appropriate. |
-| `tgui/packages/tgui/interfaces/ContractLedger.tsx` | `[DEPRECATED/NOT FOUND]`; current quest contract flow uses DM input helpers in `code/modules/roguetown/roguemachine/questing/contract_ledger.dm`. |
 
 ---
 

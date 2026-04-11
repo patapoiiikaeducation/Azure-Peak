@@ -5,9 +5,9 @@ Generated for Azure-Peak. This file explains how the repository is put together 
 ## Composition Model
 
 - The project is a BYOND/Dream Maker codebase with a TG-derived linear `.dme` include graph.
-- The active project file is `roguetown.dme`, not `[DEPRECATED/NOT FOUND: vanderlin.dme]`.
+- The active project file is `roguetown.dme`.
 - The high-level include order is maps/templates, defines, helpers, globalvars, controllers, datums, modules, game atoms/objects, interface, then late modular includes.
-- `modular/` is the current overlay/pack layer; `[DEPRECATED/NOT FOUND: modular_rmh/]` is not present here.
+- `modular/` is the current overlay/pack layer.
 - `modular/` can extend existing type paths and add late content, but it does not replace `Master`, `SS*`, or the core subsystem architecture.
 
 ## Runtime Backbone
@@ -40,7 +40,7 @@ Generated for Azure-Peak. This file explains how the repository is put together 
 - Type-tree inheritance is the main structural unit. Start from `/datum`, `/obj`, `/mob`, `/turf`, `/area`, and `/atom` paths.
 - DCS signal-driven composition is pervasive. If behavior appears indirect, search `RegisterSignal`, `SEND_SIGNAL`, `AddComponent`, and `RemoveElement` before assuming a direct proc chain.
 - Feature ownership is usually split between `code/datums` for reusable state and `code/modules` for feature logic/content/UI.
-- Status effects are common state containers, but imported `[DEPRECATED/NOT FOUND: SSstatusprocess]` is absent here; inspect status effect callers and process hooks directly.
+- Status effects are common state containers; inspect status effect callers and process hooks directly.
 - Map/world behavior is split across `_maps`, mapping modules, `SSmapping`, `SSminor_mapping`, `SSdungeon_generator`, `SSmapgen`, and related environment subsystems.
 
 ## Azure Modular Layer
@@ -66,7 +66,7 @@ Generated for Azure-Peak. This file explains how the repository is put together 
 
 - DM-side TGUI backends live under `code/modules/tgui/**`, `code/modules/tgui_input/**`, and `code/modules/tgui_panel/**`.
 - TypeScript frontend packages live under `tgui/packages/**`.
-- `[DEPRECATED/NOT FOUND: code/modules/visual_ui/**]` and `[DEPRECATED/NOT FOUND: SSvisual_ui]` are absent in this repo.
+- Current UI work routes through TGUI and interface paths.
 - Runtime configuration lives under `config/**`; SQL/schema data lives under `SQL/**`; developer tooling lives under `tools/**`, `bin/**`, and root scripts.
 
 ## Runtime Ownership Quick Reference

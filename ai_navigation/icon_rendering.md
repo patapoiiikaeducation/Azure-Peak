@@ -1,6 +1,6 @@
 ﻿# Icon Smoothing and Appearance Caching
 
-Generated 2026-03-14 from source analysis of `code/controllers/subsystem/icon_smooth.dm`, `overlays.dm`, `vis_overlays.dm`, `[DEPRECATED/NOT FOUND: code/__DEFINES/icon_smoothing.dm]`, `code/__HELPERS/icon_smoothing.dm`.
+Generated 2026-03-14 from source analysis of `code/controllers/subsystem/icon_smooth.dm`, `overlays.dm`, `vis_overlays.dm`, and `code/__HELPERS/icon_smoothing.dm`.
 
 ---
 
@@ -260,12 +260,11 @@ Icon smoothing and appearance caching interact directly with the performance haz
 | `code/controllers/subsystem/overlays.dm` | SSoverlays -- `iconstate2appearance`, `icon2appearance`, `build_appearance_list`, `add_overlay`, `cut_overlay` |
 | `code/controllers/subsystem/vis_overlays.dm` | SSvis_overlays -- vis_contents overlay cache |
 | `code/controllers/subsystem/rogue/damoverlays.dm` | SSdamoverlays -- async damage overlay updates |
-| `[DEPRECATED/NOT FOUND: code/__DEFINES/icon_smoothing.dm]` | imported old define path; current smoothing macros/helpers are in `code/__HELPERS/icon_smoothing.dm` and related `code/__DEFINES/**` files |
 | `code/__HELPERS/icon_smoothing.dm` | `smooth()`, `set_smoothed_icon_state()`, `set_neighborlays()`, `smooth_zlevel()` |
 | `code/__DEFINES/layers.dm` | All layer and plane constants |
 
 *Cross-references:*
 - *Overlay performance hazards: `ai_navigation/performance_gotchas.md` Section 7*
 - *Appearance accumulation and network cost: `ai_navigation/engine_limits.md` Section Overlays and Appearance*
-- *Imported GAGS/greyscale status: `ai_navigation/visuals_guide.md` Section GAGS*
+- *Sprite recoloring and variants: `ai_navigation/visuals_guide.md` Section Sprite Recoloring And Variants*
 - *Planes, filters, render relays: `ai_navigation/visuals_guide.md`*

@@ -1,9 +1,8 @@
 ﻿# Visuals Guide
 
-Updated for Azure-Peak on 2026-04-11. Adapted from imported visual-system notes and current Azure-Peak rendering files.
+Updated for Azure-Peak on 2026-04-11 from current Azure-Peak rendering files.
 This file is the AI navigation layer's reference for visual and rendering systems -- appearances, overlays, planes, filters, lighting, and related BYOND rendering concepts.
 
-No root `[DEPRECATED/NOT FOUND: VISUALS.md]` file exists in this tree. If this file and source disagree, trust source.
 Current rendering anchors include `code/_onclick/hud/plane_master.dm`, `code/_onclick/hud/hud.dm`, `code/controllers/subsystem/overlays.dm`, `code/controllers/subsystem/vis_overlays.dm`, `code/controllers/subsystem/icon_smooth.dm`, and `code/controllers/subsystem/rogue/damoverlays.dm`.
 
 ---
@@ -26,7 +25,6 @@ Current rendering anchors include `code/_onclick/hud/plane_master.dm`, `code/_on
 | Multiz rendering | Plane tree + manual Z offsets | All plane-setting code must accept a turf/context source |
 | Invisibility | `/atom/var/invisibility`, `/mob/var/see_invisible` | Scale 0-101; used for ghosts, countdowns |
 | Animated transitions | `animate()` | Client-side visual only; server value changes instantly |
-| Imported GAGS/greyscale route | `[DEPRECATED/NOT FOUND: SSgreyscale]`, `[DEPRECATED/NOT FOUND: code/datums/greyscale/**]` | No runtime GAGS route; inspect current icon/appearance code directly |
 
 ---
 
@@ -133,7 +131,7 @@ Planes must be whole integers with absolute value <= 10000 (to support `FLOAT_PL
 
 Prepend `*` to a `render_target` value to suppress the target's normal render and only display it via the relay.
 
-Used in this codebase to link plane masters together ("render relays") for advanced multi-step effects. The imported relay diagram `[DEPRECATED/NOT FOUND: code/_onclick/hud/rendering/_render_readme.md]` is absent; inspect `code/_onclick/hud/plane_master.dm` and `code/_onclick/hud/hud.dm`.
+Used in this codebase to link plane masters together ("render relays") for advanced multi-step effects; inspect `code/_onclick/hud/plane_master.dm` and `code/_onclick/hud/hud.dm`.
 
 > **Layer matters with render relays.** The layer of the last plane master in the chain determines render order -- plane value alone does not guarantee final order.
 
@@ -271,26 +269,13 @@ Avoid the old `vis_contents`-based multiz pattern -- it destroys plane effects a
 
 ---
 
-## GAGS / Greyscale Auto-Generated Sprites
+## Sprite Recoloring And Variants
 
-Status in Azure-Peak: `[DEPRECATED/NOT FOUND]`.
+For recoloring or sprite variants in this repo, inspect the actual item/mob icon code, overlay generation, `update_icon`/`update_overlays` procs, and the appearance cache paths documented above.
 
-The imported navigation layer documented a GAGS runtime composed of `[DEPRECATED/NOT FOUND: SSgreyscale]`, `/datum/greyscale_config`, JSON configs, and greyscale atom vars. This Azure-Peak tree does not contain that system as a real route:
-
-| Imported GAGS route | Azure-Peak status |
-|---|---|
-| `SSgreyscale` | `[DEPRECATED/NOT FOUND]` |
-| `code/controllers/subsystem/greyscale.dm` | `[DEPRECATED/NOT FOUND]` |
-| `code/datums/greyscale/**` | `[DEPRECATED/NOT FOUND]` |
-| `code/datums/greyscale/json_configs/**` | `[DEPRECATED/NOT FOUND]` |
-| `/datum/greyscale_config` | `[DEPRECATED/NOT FOUND]` |
-
-For recoloring or sprite variants in this repo, inspect the actual item/mob icon code, overlay generation, `update_icon`/`update_overlays` procs, and the appearance cache paths documented above. Do not add a GAGS config file unless you are also porting or implementing the missing greyscale system deliberately.
-
-### Replacement Search Patterns
+### Search Patterns
 
 ```sh
-rg -n "greyscale|greyscale_config|greyscale_colors|SSgreyscale" code modular -g "*.dm"
 rg -n "update_icon|update_overlays|overlays \+=|overlays -=|icon_state" code/modules code/game modular -g "*.dm"
 rg -n "iconstate2appearance|icon2appearance|appearance" code -g "*.dm"
 ```
@@ -312,4 +297,4 @@ rg -n "iconstate2appearance|icon2appearance|appearance" code -g "*.dm"
 - *Appearance performance hazards: `ai_navigation/performance_gotchas.md` Section 7*
 - *Appearance object accumulation / overlay cost: `ai_navigation/engine_limits.md` Section Overlays and Appearance*
 - *Coding standards for overlay caching: `ai_navigation/coding_standards.md` Section Optimization*
-- *Render relay source: `code/_onclick/hud/plane_master.dm`, `code/_onclick/hud/hud.dm`; imported `[DEPRECATED/NOT FOUND: code/_onclick/hud/rendering/_render_readme.md]` is absent*
+- *Render relay source: `code/_onclick/hud/plane_master.dm`, `code/_onclick/hud/hud.dm`*

@@ -1,9 +1,9 @@
 # Runtime Errors and Deletion
 
-Updated for Azure-Peak on 2026-04-11. Adapted from imported BYOND runtime notes, Crispy's "Code Red" BYOND forum guide (post/37193), the qdel design post (post/2984475), and current qdel/Destroy patterns.
+Updated for Azure-Peak on 2026-04-11 from BYOND runtime notes, Crispy's "Code Red" BYOND forum guide (post/37193), the qdel design post (post/2984475), and current qdel/Destroy patterns.
 This file covers: how to read runtime errors, the most common error types and their fixes, and the theory behind `qdel()` vs raw `del()`.
 
-No root `[DEPRECATED/NOT FOUND: HARDDELETES.md]` file exists in this tree. If this file and source/tooling disagree, trust source/tooling.
+If this file and source/tooling disagree, trust source/tooling.
 
 ---
 

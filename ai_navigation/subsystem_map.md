@@ -5,7 +5,6 @@ Generated for Azure-Peak from actual subsystem macro declarations in `code/**` a
 - Total subsystem declarations detected: **115**
 - Macro family breakdown: movement=2, processing=24, standard=89
 - Naming rule: `SUBSYSTEM_DEF(X)` creates global `SSX`; `SUBSYSTEM_DEF(ticker)` becomes `SSticker` by token paste.
-- Imported subsystem names that are absent in this codebase are listed as `[DEPRECATED/NOT FOUND]` below.
 
 ## Category Summary
 
@@ -18,44 +17,6 @@ Generated for Azure-Peak from actual subsystem macro declarations in `code/**` a
 | Round flow and player lifecycle | 8 | `SSgamemode`, `SSjob`, `SSlobbymenu`, `SSmaturity_guard`, `SSmigrants` |
 | UI, comms and admin | 9 | `SSchat`, `SScommunications`, `SSdiscord`, `SSinput`, `SSradio` |
 | World generation and map state | 13 | `SSdungeon_generator`, `SSfire_burning`, `SSfire_spread`, `SSlighting`, `SSoutdoor_effects` |
-
-## Deprecated / Not Found From Imported Layer
-
-| SS global | Status |
-|---|---|
-| `SSaction_charge` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSai_idle_controllers` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSanvil` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSarea_contents` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSban_cache` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSblueprints` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSbounties` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SScellauto` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSdeath_arena` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSearly_assets` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSenchantment` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSfamilytree` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSfaster_obj` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSfishing` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSfrenzy_handler` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSgreyscale` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SShousing` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSisland_mobs` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSliquids` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSmagic` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSmob_functions` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSoverwatch` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSpaintings` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSplexora` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSrandom_travel_tiles` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSslowobj` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSstatpanels` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSstatusprocess` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSstrategy_master` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSterrain_generation` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSverb_manager` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSverifications` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `SSvisual_ui` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
 
 ## Atom Lifecycle (SSatoms)
 

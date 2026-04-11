@@ -29,7 +29,7 @@ Generated for Azure-Peak. Use this file when the task gives a BYOND type path an
 | `/datum/storyteller/...`, `/datum/round_event_control/...`, `/datum/round_event/...` | `code/datums/storytellers/**`, `code/modules/events/**` | `SSgamemode`, `SSevents`, `SSticker` |
 | `/datum/migrant_wave/...` or `/datum/migrant_role/...` | `code/datums/migrants/**` | `code/modules/jobs/**`, `SSmigrants` |
 | `/datum/skill/...` | `code/datums/skills/**`, `code/datums/skill_holder.dm` | `SSskills`, job spawn files |
-| `/datum/patron/...` or god/faith data | `code/datums/gods/**` | `[DEPRECATED/NOT FOUND: code/datums/faith/**]` |
+| `/datum/patron/...` or god/faith data | `code/datums/gods/**` | `SSskills`, `SSmood` |
 | `/datum/quest/...`, `/datum/component/quest_object` | `code/modules/roguetown/roguemachine/questing/**` | `code/__DEFINES/questing.dm` |
 | `/datum/special_intent/...` | `code/modules/mob/living/combat/special_intents.dm` | `code/modules/mob/living/combat/azure_combat.dm` |
 | `/mob/living/...` | `code/modules/mob/living/**` | feature modules touching that mob family |

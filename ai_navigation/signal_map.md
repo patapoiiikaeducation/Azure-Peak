@@ -54,27 +54,6 @@ Generated for Azure-Peak from active `COMSIG_*` definitions in `code/__DEFINES/*
 |---|---|---|
 | `COMSIG_STORAGE_BLOCK_USER_TAKE` | `code/game/objects/items/storage/new_storage/tetris.dm` | Local storage-grid signal; defined near the top of the file and `#undef`d at EOF. |
 
-## Deprecated / Not Found Imported Definition Files
-
-| Imported file | Status |
-|---|---|
-| `code/__DEFINES/dcs/signals/signals_beam.dm` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `code/__DEFINES/dcs/signals/signals_client.dm` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `code/__DEFINES/dcs/signals/signals_divine.dm` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `code/__DEFINES/dcs/signals/signals_hud.dm` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `code/__DEFINES/dcs/signals/signals_leash.dm` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `code/__DEFINES/dcs/signals/signals_mob/signals_broodmother.dm` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `code/__DEFINES/dcs/signals/signals_mob/signals_carbon.dm` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `code/__DEFINES/dcs/signals/signals_mob/signals_living.dm` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `code/__DEFINES/dcs/signals/signals_organ.dm` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `code/__DEFINES/dcs/signals/signals_rage.dm` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `code/__DEFINES/dcs/signals/signals_subsystems.dm` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `code/__DEFINES/dcs/signals/signals_twohand.dm` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `code/__DEFINES/dcs/signals_atoms/signals_atom_mouse.dm` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `code/__DEFINES/dcs/signals_atoms/signals_atom_movement.dm` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `code/__DEFINES/dcs/signals_atoms/signals_fuse.dm` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-| `code/__DEFINES/dcs/signals_atoms/signals_obj.dm` | `[DEPRECATED/NOT FOUND]` in Azure-Peak |
-
 ## Signal Index
 
 | Signal | Define file(s) | SEND files | Register files |
@@ -130,7 +109,7 @@ Generated for Azure-Peak from active `COMSIG_*` definitions in `code/__DEFINES/*
 | `COMSIG_ATOM_FIRE_ACT` | `code/__DEFINES/components.dm` | 1 | 1 |
 | `COMSIG_ATOM_GET_EXAMINE_NAME` | `code/__DEFINES/components.dm` | 1 | 1 |
 | `COMSIG_ATOM_HITBY` | `code/__DEFINES/dcs/signals_atoms/signals_atom.dm` | 2 | 1 |
-| `COMSIG_ATOM_INITIALIZED_ON` | `[DEPRECATED/NOT FOUND: active reference in code/datums/proximity_monitor/proximity_monitor.dm; likely old name for COMSIG_ATOM_AFTER_SUCCESSFUL_INITIALIZED_ON]` | 0 | 0 |
+| `COMSIG_ATOM_INITIALIZED_ON` | active reference in `code/datums/proximity_monitor/proximity_monitor.dm`; no local define in `code/__DEFINES/**` | 0 | 0 |
 | `COMSIG_ATOM_INTERCEPT_TELEPORT` | `code/__DEFINES/components.dm` | 1 | 1 |
 | `COMSIG_ATOM_INTERCEPT_Z_FALL` | `code/__DEFINES/components.dm` | 1 | 0 |
 | `COMSIG_ATOM_MULTITOOL_ACT` | `code/__DEFINES/components.dm` | 1 | 0 |
