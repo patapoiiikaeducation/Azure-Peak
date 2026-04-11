@@ -1,5 +1,7 @@
 ﻿# Repository Agent Guide
 
+Canonical path: `ai_navigation/AGENTS.md`. Do not look for a root `AGENTS.md` in this repository.
+
 This repository is meant to be handed to agents after a separate goal statement from the user.
 
 Terminology note:
@@ -52,4 +54,3 @@ When in doubt, use Fast Start and escalate only if unresolved.
 For specific routing use `ai_navigation/router.md` dispatch table.
 For human onboarding use `ai_navigation/DEVELOPER_GUIDE.md`.
 For task framing use `ai_navigation/task_templates.md`.
-

@@ -11,6 +11,7 @@ Use this skill to route work through the current Azure-Peak repository structure
 
 - Treat source files as the source of truth. If these docs disagree with code, trust code and report the mismatch.
 - Use the cheapest entrypoint that fits the task.
+- The repository agent guide is `ai_navigation/AGENTS.md`; do not look for a root `AGENTS.md`.
 - Do not use imported paths marked `[DEPRECATED/NOT FOUND]`; search source before reviving any old route.
 - After finding a core path in `code/**`, check whether `modular/**` extends the same type branch.
 - For broad, risky, or ambiguous work, read `human_checking.md` before editing gameplay code.
