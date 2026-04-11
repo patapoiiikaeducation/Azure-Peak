@@ -1,0 +1,332 @@
+# TGUI Guide
+
+Updated on 2026-04-11 for Azure-Peak / RogueTown.
+
+TGUI is the primary UI framework in this repository: DM backend objects expose data and actions, and React + TypeScript components render the browser UI. Use the live source paths below over imported source-codebase assumptions.
+
+---
+
+## Architecture Overview
+
+```text
+DM backend object/datum              React frontend
+-----------------------              --------------
+ui_interact() opens/updates       -> tgui/packages/tgui/routes.tsx resolves the interface
+ui_data() / ui_static_data()      -> useBackend() reads data/static_data
+ui_act(action, params, ui, state) <- act("action", params)
+ui_state() / ui_status()          -> access and visibility checks
+```
+
+| Owner | Current Azure-Peak path | Notes |
+|---|---|---|
+| `SStgui` | `code/controllers/subsystem/tgui.dm` | Owns open TGUI instances. |
+| `/datum/tgui` | `code/modules/tgui/tgui.dm` | One UI instance per open interface/user. |
+| TGUI extension procs | `code/modules/tgui/external.dm` | Defines `ui_interact`, `ui_data`, `ui_static_data`, `ui_act`, `ui_state`, `ui_assets`, etc. |
+| UI states | `code/modules/tgui/states.dm`, `code/modules/tgui/states/**` | Access and interaction state datums. |
+| Custom HTML window | `code/modules/tgui/tgui_window.dm` | Lower-level BYOND browser wrapper. |
+| Modal inputs | `code/modules/tgui_input/**` | `tgui_alert`, `tgui_input_text`, `tgui_input_number`, `tgui_input_list`, etc. |
+| TGUI panel/chat | `code/modules/tgui_panel/**`, `tgui/packages/tgui-panel/**` | Chat, audio, telemetry, panel frontend. |
+| Imported visual UI layer | `[DEPRECATED/NOT FOUND: code/modules/visual_ui/**]`, `[DEPRECATED/NOT FOUND: SSvisual_ui]` | Do not route UI work here in Azure-Peak. |
+
+---
+
+## Backend (DM Side)
+
+### Required and common procs
+
+| Proc | Required | Purpose |
+|---|---:|---|
+| `ui_interact(mob/user, datum/tgui/ui)` | Yes | Open a new UI or update an already open one via `SStgui.try_update_ui`. |
+| `ui_data(mob/user)` | Yes | Dynamic JSON-safe data sent to the frontend. |
+| `ui_static_data(mob/user)` | Optional | Large or mostly stable data cached on the frontend side. |
+| `ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)` | For interactive UI | Handles frontend `act()` calls. Treat every param as untrusted. |
+| `ui_state(mob/user)` | Optional | Returns a UI state datum. Default is `GLOB.default_state`. |
+| `ui_assets(mob/user)` | Optional | Supplies asset datums/file assets needed by the UI. |
+
+### Current local pattern
+
+```dm
+/datum/example_menu/ui_interact(mob/user, datum/tgui/ui)
+	ui = SStgui.try_update_ui(user, src, ui)
+	if(!ui)
+		ui = new(user, src, "ExampleMenu", "Example Menu")
+		ui.open()
+
+/datum/example_menu/ui_static_data(mob/user)
+	var/list/data = list()
+	data["max_entries"] = max_entries
+	return data
+
+/datum/example_menu/ui_data(mob/user)
+	var/list/data = list()
+	var/list/entries = list()
+	for(var/i in 1 to length(src.entries))
+		entries += list(list(
+			"index" = i,
+			"text" = src.entries[i],
+		))
+	data["entries"] = entries
+	return data
+
+/datum/example_menu/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
+	if(..())
+		return TRUE
+
+	switch(action)
+		if("set_entries")
+			var/list/new_entries = params["entries"]
+			if(!islist(new_entries))
+				return FALSE
+
+			src.entries = new_entries
+			return TRUE
+```
+
+Local examples to copy from:
+
+| Interface | DM owner | Frontend component |
+|---|---|---|
+| Laws menu | `code/datums/laws.dm` | `tgui/packages/tgui/interfaces/LawsMenu.tsx` |
+| Autosmither | `code/game/rotational_objects/autosmither.dm` | `tgui/packages/tgui/interfaces/Autosmither.tsx` |
+| Text input | `code/modules/tgui_input/text.dm` | `tgui/packages/tgui/interfaces/TextInputModal.tsx` |
+| Sex session | `code/datums/sexcon2/sex_session.dm` | `tgui/packages/tgui/interfaces/SexSession.tsx` |
+
+### Backend rules
+
+- Call `SStgui.try_update_ui(user, src, ui)` in `ui_interact`; only create a new `/datum/tgui` if it returns null.
+- The interface name string in `new(user, src, "ExampleMenu")` must match the exported frontend component name.
+- Return only JSON-safe values from `ui_data` and `ui_static_data`: numbers, strings, booleans, nulls, and lists. Do not send atoms or datums directly.
+- Prefer arrays/lists of records for frontend `.map()` calls.
+- Put large stable lists in `ui_static_data`; call `update_static_data()` or `update_static_data_for_all_viewers()` when those values change.
+- In `ui_act`, call `..()` first and return if it handled or blocked the action.
+- Validate every value in `params`: type-check lists, clamp numbers, restrict strings to known values, and avoid bare `locate(ref)` searches.
+- Return `TRUE` only after handling an action that should refresh the UI; return `FALSE` for rejected/no-op actions.
+
+---
+
+## Frontend (React/TypeScript Side)
+
+### File location and routing
+
+Put in-game interfaces under:
+
+```text
+tgui/packages/tgui/interfaces/MyThing.tsx
+```
+
+Azure-Peak routes components through:
+
+```text
+tgui/packages/tgui/routes.tsx
+```
+
+`[DEPRECATED/NOT FOUND: tgui/packages/tgui/routes.ts]` is not present in this tree. `routes.tsx` uses `require.context('./interfaces')` and attempts these names:
+
+| Route candidate | Meaning |
+|---|---|
+| `./MyThing.tsx` | Preferred TypeScript React component. |
+| `./MyThing.jsx` | JSX component. |
+| `./MyThing.js` | JavaScript component. |
+| `./MyThing/index.tsx` | Folder component entrypoint. |
+| `./MyThing/index.jsx` | JSX folder entrypoint. |
+| `./MyThing/index.js` | JavaScript folder entrypoint. |
+
+The component must be exported by the same name used by DM:
+
+```tsx
+export const MyThing = () => {
+  // ...
+};
+```
+
+### Minimal component
+
+Current interfaces generally import shared components from `tgui-core/components`, `useBackend` from `../backend`, and `Window` from `../layouts`.
+
+```tsx
+import { Button, LabeledList, Section } from 'tgui-core/components';
+
+import { useBackend } from '../backend';
+import { Window } from '../layouts';
+
+type Data = {
+  health: number;
+  color: string;
+};
+
+export const MyThing = () => {
+  const { act, data } = useBackend<Data>();
+  const { health, color } = data;
+
+  return (
+    <Window width={420} height={260} title="My Thing">
+      <Window.Content scrollable>
+        <Section title="Status">
+          <LabeledList>
+            <LabeledList.Item label="Health">{health}</LabeledList.Item>
+            <LabeledList.Item label="Color">{color}</LabeledList.Item>
+            <LabeledList.Item label="Action">
+              <Button onClick={() => act('reset')}>Reset</Button>
+            </LabeledList.Item>
+          </LabeledList>
+        </Section>
+      </Window.Content>
+    </Window>
+  );
+};
+```
+
+### Frontend rules
+
+- Type `useBackend<Data>()` for new TypeScript interfaces.
+- Keep server state in DM; use React local state only for UI-only drafts, toggles, search filters, and confirmation state.
+- Prefer derived values over extra `useState`.
+- Always provide `key` when rendering arrays.
+- Keep action names stable and validate them in DM `ui_act`.
+- Follow existing imports and component idioms from nearby current files before copying older TG examples.
+
+---
+
+## Project Structure
+
+| Path | Contents |
+|---|---|
+| `code/controllers/subsystem/tgui.dm` | `SStgui` subsystem. |
+| `code/modules/tgui/**` | DM TGUI core, states, helpers, window wrapper. |
+| `code/modules/tgui_input/**` | Modal input helpers and their DM datums. |
+| `code/modules/tgui_panel/**` | DM side for panel/chat/audio/telemetry. |
+| `tgui/package.json` | Bun workspace and TGUI scripts. |
+| `tgui/packages/tgui/routes.tsx` | Auto-routing for interface component names. |
+| `tgui/packages/tgui/interfaces/**` | In-game UI components. |
+| `tgui/packages/tgui/components/**` | Local UI helper components. |
+| `tgui/packages/tgui/layouts/**` | Root layout wrappers such as `Window`. |
+| `tgui/packages/tgui/styles/interfaces/**` | Per-interface styles. |
+| `tgui/packages/tgui/styles/layouts/**` | Layout styles. |
+| `tgui/packages/tgui/styles/themes/**` | Theme styles. |
+| `tgui/packages/tgui-panel/**` | Chat/stat panel frontend. |
+| `tgui/packages/common/**` | Shared frontend helpers. |
+| `tgui/docs/**` | Upstream-style TGUI docs copied with this repo. |
+
+---
+
+## Build and Dev Workflow
+
+Use the Windows scripts from repo root:
+
+```powershell
+bin\tgui-build.cmd
+bin\tgui-dev.cmd
+bin\tgui-dev.cmd --reload
+bin\test.cmd
+```
+
+Or use Bun from the `tgui/` directory:
+
+```powershell
+Set-Location tgui
+bun install
+bun tgui:build
+bun tgui:dev
+bun tgui:dev --reload
+bun tgui:dev --debug
+bun tgui:lint
+bun tgui:tsc
+bun tgui:test
+bun tgui:analyze
+```
+
+`[DEPRECATED/NOT FOUND: bun tgui:clean]` is not present in `tgui/package.json` in this tree. Use the repo build tooling target if a clean is needed:
+
+```powershell
+tools\build\build.bat tgui-clean
+```
+
+If the dev server does not attach, open a TGUI window in-game first, then start or refresh the dev server. Browser inspection is enabled in-game through the Debug tab.
+
+---
+
+## Chat Embedded Components
+
+Chat embedded components are handled by:
+
+```text
+tgui/packages/tgui-panel/chat/renderer.tsx
+```
+
+DM-side helper macros include:
+
+```text
+code/__DEFINES/spans.dm
+```
+
+Example:
+
+```html
+<span data-component="Tooltip" data-content="Hover text">Visible text</span>
+```
+
+| Attribute | Purpose |
+|---|---|
+| `data-component` | Component name whitelisted in `TGUI_CHAT_COMPONENTS`. |
+| `data-*` | Props mapped by the renderer; see `TGUI_CHAT_ATTRIBUTES_TO_PROPS` behavior in the renderer. |
+
+Imported docs may mention `[DEPRECATED/NOT FOUND: tgui/packages/tgui-panel/chat/renderer.js]`; in Azure-Peak the source file is `renderer.tsx`.
+
+---
+
+## Custom HTML Popups
+
+Use `/datum/tgui_window` only for non-standard long-lived browser windows that need direct BYOND browser/window behavior. Standard gameplay UI should use `/datum/tgui`.
+
+```dm
+var/datum/tgui_window/window = new(usr.client, "custom_popup")
+window.initialize(
+	inline_html = "<h1>Hello</h1>",
+	inline_js = "window.alert('hi')",
+	inline_css = "h1 { color: red }",
+	strict_mode = TRUE,
+)
+```
+
+References:
+
+| Need | Path |
+|---|---|
+| TGUI window wrapper | `code/modules/tgui/tgui_window.dm` |
+| Custom popup docs | `tgui/docs/tgui-for-custom-html-popups.md` |
+| BYOND skin API types | `tgui/global.d.ts` |
+
+---
+
+## Security Checklist
+
+Every `ui_act` implementation should:
+
+- Call `..()` first and return when it returns truthy.
+- Validate every `params` value before use.
+- Clamp numeric inputs with local constants.
+- Scope object refs instead of using bare global `locate(ref)`.
+- Reject unknown action strings.
+- Return `TRUE` only after a handled state change.
+- Keep client-side checks as convenience only; never rely on them for access or authority.
+
+---
+
+## Deprecated / Not Found Imports
+
+| Imported route | Azure-Peak status |
+|---|---|
+| `tgui/packages/tgui/routes.ts` | `[DEPRECATED/NOT FOUND]`; use `tgui/packages/tgui/routes.tsx`. |
+| `code/modules/visual_ui/**` | `[DEPRECATED/NOT FOUND]`; use `code/modules/tgui/**`, `code/modules/tgui_input/**`, `code/modules/tgui_panel/**`, and frontend `tgui/packages/**`. |
+| `SSvisual_ui` | `[DEPRECATED/NOT FOUND]`; use `SStgui`, `SSchat`, and `SSstatpanel` as appropriate. |
+| `tgui/packages/tgui/interfaces/ContractLedger.tsx` | `[DEPRECATED/NOT FOUND]`; current quest contract flow uses DM input helpers in `code/modules/roguetown/roguemachine/questing/contract_ledger.dm`. |
+
+---
+
+## Cross-References
+
+- Backend TGUI core: `code/modules/tgui/**`
+- TGUI subsystem: `code/controllers/subsystem/tgui.dm`
+- Frontend router: `tgui/packages/tgui/routes.tsx`
+- UI ownership map: `ai_navigation/subsystem_map.md`
+- UI routing table: `ai_navigation/entrypoints.md`
