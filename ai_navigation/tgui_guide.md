@@ -1,6 +1,6 @@
 # TGUI Guide
 
-Updated on 2026-04-11 for Azure-Peak / RogueTown.
+Updated on 2026-04-24 for Azure-Peak / RogueTown.
 
 TGUI is the primary UI framework in this repository: DM backend objects expose data and actions, and React + TypeScript components render the browser UI. Use the live source paths below.
 
@@ -29,6 +29,33 @@ ui_state() / ui_status()          -> access and visibility checks
 
 ---
 
+## Improved TGUI Development Algorithm (with Localization)
+
+Localization is a design constraint for new TGUI work, not a cleanup step after the React view exists.
+
+Required pipeline for every new user-facing TGUI interface:
+
+1. Define the UI text schema before layout work: window title, section titles, labels, buttons, tooltips, notices, empty states, placeholders, table headers, tab names, confirmation copy, and dynamic formatted messages.
+2. Bind the schema to the existing preferred UI language system: `DEFAULT_PREFERRED_UI_LANGUAGE`, `/datum/preferred_ui_language`, `client.preferred_ui_language`, and `client.get_preferred_ui_language()`.
+3. Implement a DM localization provider, normally `/datum/ui_localization/<context>`, with English as the complete fallback language.
+4. Return localized `texts` from `ui_static_data()` when stable, or `ui_data()` only when the text genuinely changes with frequent dynamic state.
+5. Build the TSX view using only `texts.*` and localized DM-provided data fields for user-facing copy.
+6. Validate the new interface with review or a future TGUI i18n lint/check path: no raw user-facing JSX strings in new interfaces.
+
+Old flow to avoid:
+
+```text
+Create DM datum -> implement ui_data -> build TSX -> add strings directly
+```
+
+Required flow:
+
+```text
+Text schema -> preferred language binding -> DM localization provider -> ui_static_data/texts -> TSX consumes texts only -> raw string check
+```
+
+---
+
 ## Backend (DM Side)
 
 ### Required and common procs
@@ -42,17 +69,55 @@ ui_state() / ui_status()          -> access and visibility checks
 | `ui_state(mob/user)` | Optional | Returns a UI state datum. Default is `GLOB.default_state`. |
 | `ui_assets(mob/user)` | Optional | Supplies asset datums/file assets needed by the UI. |
 
-### Current local pattern
+### Localized local pattern
 
 ```dm
+/datum/ui_localization/example_menu
+	supported_languages = list(DEFAULT_PREFERRED_UI_LANGUAGE, "ru")
+
+/datum/ui_localization/example_menu/get_language_texts(language_code)
+	switch(language_code)
+		if("ru")
+			return list(
+				"window_title" = "Пример меню",
+				"sections" = list(
+					"status" = "Статус",
+				),
+				"labels" = list(
+					"health" = "Здоровье",
+					"color" = "Цвет",
+					"action" = "Действие",
+				),
+				"actions" = list(
+					"reset" = "Сбросить",
+				),
+			)
+
+	return list(
+		"window_title" = "Example Menu",
+		"sections" = list(
+			"status" = "Status",
+		),
+		"labels" = list(
+			"health" = "Health",
+			"color" = "Color",
+			"action" = "Action",
+		),
+		"actions" = list(
+			"reset" = "Reset",
+		),
+	)
+
 /datum/example_menu/ui_interact(mob/user, datum/tgui/ui)
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
-		ui = new(user, src, "ExampleMenu", "Example Menu")
+		var/list/texts = get_ui_texts(user, /datum/ui_localization/example_menu)
+		ui = new(user, src, "ExampleMenu", texts["window_title"])
 		ui.open()
 
 /datum/example_menu/ui_static_data(mob/user)
 	var/list/data = list()
+	data["texts"] = get_ui_texts(user, /datum/ui_localization/example_menu)
 	data["max_entries"] = max_entries
 	return data
 
@@ -94,12 +159,130 @@ Local examples to copy from:
 
 - Call `SStgui.try_update_ui(user, src, ui)` in `ui_interact`; only create a new `/datum/tgui` if it returns null.
 - The interface name string in `new(user, src, "ExampleMenu")` must match the exported frontend component name.
+- Use `get_ui_texts(user, /datum/ui_localization/<context>)` for window titles and frontend `texts`.
 - Return only JSON-safe values from `ui_data` and `ui_static_data`: numbers, strings, booleans, nulls, and lists. Do not send atoms or datums directly.
 - Prefer arrays/lists of records for frontend `.map()` calls.
-- Put large stable lists in `ui_static_data`; call `update_static_data()` or `update_static_data_for_all_viewers()` when those values change.
+- Put large stable lists and `texts` in `ui_static_data`; call `update_static_data()` or `update_static_data_for_all_viewers()` when those values change.
 - In `ui_act`, call `..()` first and return if it handled or blocked the action.
 - Validate every value in `params`: type-check lists, clamp numbers, restrict strings to known values, and avoid bare `locate(ref)` searches.
 - Return `TRUE` only after handling an action that should refresh the UI; return `FALSE` for rejected/no-op actions.
+
+---
+
+## Localization Pattern (DM + TSX)
+
+Use this DM-driven shape for new interfaces. If a shared helper exists in the branch, use it; otherwise keep the same contract locally and avoid frontend-side localization.
+
+Backend contract:
+
+```dm
+/datum/ui_localization/<context>
+	supported_languages = list(DEFAULT_PREFERRED_UI_LANGUAGE, "ru")
+
+/datum/ui_localization/<context>/get_language_texts(language_code)
+	// Return a structured JSON-safe list for the requested language.
+```
+
+DM integration:
+
+```dm
+/datum/my_context/ui_static_data(mob/user)
+	var/list/data = list()
+	data["texts"] = get_ui_texts(user, /datum/ui_localization/my_context)
+	return data
+```
+
+Frontend contract:
+
+```tsx
+type Texts = {
+  window_title: string;
+  sections: {
+    status: string;
+  };
+  actions: {
+    reset: string;
+  };
+};
+
+type Data = {
+  texts: Texts;
+};
+```
+
+Recommended shared helper shape:
+
+```dm
+/proc/get_ui_texts(mob/user, localization_type)
+	var/language_code = user?.client?.get_preferred_ui_language() || DEFAULT_PREFERRED_UI_LANGUAGE
+	return get_ui_texts_for_language(language_code, localization_type)
+
+/proc/get_ui_texts_for_language(language_code, localization_type)
+	// Cache by "[localization_type]|[language_code]".
+	// Build /datum/ui_localization/<context>, merge chosen language over English fallback,
+	// and return a structured JSON-safe list.
+```
+
+Performance rules:
+
+- `get_ui_texts()` should cache by localization datum type and language code, so repeated `ui_data()` calls do not rebuild the text tree.
+- Prefer `ui_static_data()` for `texts`, especially in large dynamic UIs such as ContractLedger and FamilyTree.
+- Do not localize on every tick. Dynamic lists should carry already localized labels from DM, or stable IDs plus localized labels supplied in `texts`.
+- If a user's preferred UI language changes while an interface is open, reopen the UI or call `update_static_data(user)` for that viewer.
+- English must be complete. Other languages may omit keys; the shared merge helper should overlay the chosen language onto English fallback.
+
+---
+
+## Analysis of PR #6645 (what to keep / what to improve)
+
+Reference: https://github.com/Azure-Peak/Azure-Peak/pull/6645
+
+What to keep:
+
+- ContractLedger made localization a first-class concern instead of leaving strings scattered across the final JSX.
+- It separated text dictionaries from the main view with `ContractLedger.i18n.en.ts` and `ContractLedger.i18n.ru.ts`.
+- It reused one `ContractLedgerView` for multiple language variants, reducing layout duplication.
+- It introduced language selection through `preferred_ui_language` and used the chosen language when opening the interface.
+- It used message keys such as `notice.*` and `preview.*`, which is a good shape for notices and empty states.
+
+What to standardize differently:
+
+- The locale source should be DM, not frontend i18n modules. The existing language preference lives in DM and TGUI already receives DM-owned data.
+- Avoid separate route components such as `ContractLedger` and `ContractLedgerRu`; keep one interface name and pass `texts`.
+- Avoid frontend `resolveText()`/formatter functions for user-facing copy. Format notices, labels, tier names, and pluralized messages in DM or send ready localized strings.
+- Avoid fallback strings like ``Tier ${tier}`` in TSX; fallback belongs in `/datum/ui_localization`.
+- Avoid returning only keys for visible text unless TSX is merely indexing `texts`; large dynamic rows should include localized display fields such as `type_label`, `tier_label`, and `status_text`.
+
+---
+
+## Rules & Enforcement
+
+Hard rules for new TGUI interfaces:
+
+- No hardcoded user-facing strings in `.tsx`/`.jsx`.
+- No mixed-language UI: a single `texts` object must represent the viewer's chosen language with English fallback.
+- No frontend-side localization logic, locale imports, or React i18n libraries for in-game TGUI.
+- All visible text must come from DM through `texts` or localized DM-provided row fields.
+- Action IDs, CSS class names, icon names, enum values, route names, and test IDs are not user-facing text and may remain literals.
+
+Enforcement strategy:
+
+- Add a lightweight `tgui:lint:i18n` check when enforcement is wired into tooling. It should flag obvious JSX text literals and user-facing string attributes in new or changed interface files.
+- Code review checklist: every new TGUI PR must show the `/datum/ui_localization/<context>` schema, `texts` in `ui_static_data()` or justified `ui_data()`, and TSX consuming `texts.*`.
+- Structural review signal: if the TSX `Data` type has no `texts` field, the interface is not ready for review unless it is a non-user-facing utility wrapper.
+
+---
+
+## Migration Strategy
+
+Practical upgrade path for existing hardcoded interfaces:
+
+1. Extract every visible TSX string into a text inventory: window title, sections, labels, buttons, tabs, notices, empty states, tooltips, placeholders, and formatted messages.
+2. Create `/datum/ui_localization/<context>` with a complete English fallback tree and any available translated overlays.
+3. Add `data["texts"] = get_ui_texts(user, /datum/ui_localization/<context>)` to `ui_static_data()` for stable UI copy.
+4. For dynamic records, replace IDs that TSX localizes with DM-provided localized fields such as `name_text`, `status_text`, `tier_text`, or `description_text`.
+5. Replace JSX literals with `texts.*` access.
+6. Run the i18n check on the migrated files and review any remaining literals as either non-user-facing technical identifiers or real violations.
 
 ---
 
@@ -149,23 +332,39 @@ import { useBackend } from '../backend';
 import { Window } from '../layouts';
 
 type Data = {
+  texts: {
+    window_title: string;
+    sections: {
+      status: string;
+    };
+    labels: {
+      health: string;
+      color: string;
+      action: string;
+    };
+    actions: {
+      reset: string;
+    };
+  };
   health: number;
   color: string;
 };
 
 export const MyThing = () => {
   const { act, data } = useBackend<Data>();
-  const { health, color } = data;
+  const { texts, health, color } = data;
 
   return (
-    <Window width={420} height={260} title="My Thing">
+    <Window width={420} height={260} title={texts.window_title}>
       <Window.Content scrollable>
-        <Section title="Status">
+        <Section title={texts.sections.status}>
           <LabeledList>
-            <LabeledList.Item label="Health">{health}</LabeledList.Item>
-            <LabeledList.Item label="Color">{color}</LabeledList.Item>
-            <LabeledList.Item label="Action">
-              <Button onClick={() => act('reset')}>Reset</Button>
+            <LabeledList.Item label={texts.labels.health}>{health}</LabeledList.Item>
+            <LabeledList.Item label={texts.labels.color}>{color}</LabeledList.Item>
+            <LabeledList.Item label={texts.labels.action}>
+              <Button onClick={() => act('reset')}>
+                {texts.actions.reset}
+              </Button>
             </LabeledList.Item>
           </LabeledList>
         </Section>
@@ -178,6 +377,8 @@ export const MyThing = () => {
 ### Frontend rules
 
 - Type `useBackend<Data>()` for new TypeScript interfaces.
+- Include a typed `texts` field in `Data` for any user-facing interface.
+- Render user-facing copy from `texts.*` or localized DM-provided data fields only.
 - Keep server state in DM; use React local state only for UI-only drafts, toggles, search filters, and confirmation state.
 - Prefer derived values over extra `useState`.
 - Always provide `key` when rendering arrays.
