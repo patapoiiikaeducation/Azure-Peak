@@ -819,12 +819,12 @@ Inquisitorial armory down here
 /obj/item/inqarticles/garrote/equipped(mob/living/carbon/human/user, slot)
 	. = ..()
 	lastcarrier = user
-	wipeslate(lastcarrier)
 	if(active)	
 		if(lastcarrier.pulling)
 			lastcarrier.stop_pulling()
 		playsound(user, 'sound/items/garroteshut.ogg', 65, TRUE)
 		active = FALSE
+	wipeslate(lastcarrier)
 	if(!obj_broken)
 		if(icon_state != initial(icon_state))
 			icon_state = initial(icon_state)
@@ -832,12 +832,12 @@ Inquisitorial armory down here
 
 /obj/item/inqarticles/garrote/dropped(mob/user, silent)
 	. = ..()
-	wipeslate(lastcarrier)
 	if(active)	
 		if(lastcarrier.pulling)
 			lastcarrier.stop_pulling()
 		playsound(user, 'sound/items/garroteshut.ogg', 65, TRUE)
 		active = FALSE
+	wipeslate(lastcarrier)
 	if(!obj_broken)
 		if(icon_state != initial(icon_state))
 			icon_state = initial(icon_state)

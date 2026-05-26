@@ -657,10 +657,19 @@
 			if(!M.is_shifted)
 				reset_pull_offsets(pulling)
 			if(HAS_TRAIT(M, TRAIT_GARROTED))
-				var/obj/item/inqarticles/garrote/gcord = src.get_active_held_item()
+				var/obj/item/held_item = src.get_active_held_item()
+				var/obj/item/inqarticles/garrote/gcord
+				if(istype(held_item, /obj/item/inqarticles/garrote))
+					gcord = held_item
 				if(!gcord)
-					gcord = src.get_inactive_held_item()
-				gcord.wipeslate(src)
+					held_item = src.get_inactive_held_item()
+					if(istype(held_item, /obj/item/inqarticles/garrote))
+						gcord = held_item
+				if(gcord)
+					gcord.wipeslate(src)
+				else
+					REMOVE_TRAIT(M, TRAIT_MUTE, "garroteCordage")
+					REMOVE_TRAIT(M, TRAIT_GARROTED, TRAIT_GENERIC)
 
 		if(forced) //if false, called by the grab item itself, no reason to drop it again
 			if(istype(get_active_held_item(), /obj/item/grabbing))
