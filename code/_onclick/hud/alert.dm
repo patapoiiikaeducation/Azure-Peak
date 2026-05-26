@@ -383,6 +383,11 @@
 	desc = ""
 	icon_state = "restrained"
 
+/atom/movable/screen/alert/restrained/garroted
+	name = "Garroted"
+	desc = ""
+	icon_state = "restrained"
+
 /atom/movable/screen/alert/restrained/Click()
 	..()
 	var/mob/living/L = usr
@@ -400,6 +405,12 @@
 	if(L.last_special <= world.time)
 		if(L.resist_buckle())
 			L.set_resting(FALSE, FALSE)
+
+/atom/movable/screen/alert/restrained/garroted/Click()
+	var/mob/living/L = usr
+	if(!istype(L))
+		return
+	L.execute_resist()
 
 // PRIVATE = only edit, use, or override these if you're editing the system as a whole
 

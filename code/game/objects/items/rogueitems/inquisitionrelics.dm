@@ -789,6 +789,7 @@ Inquisitorial armory down here
 	if(victim)
 		REMOVE_TRAIT(victim, TRAIT_MUTE, "garroteCordage")
 		REMOVE_TRAIT(victim, TRAIT_GARROTED, TRAIT_GENERIC)
+		victim.clear_alert("garroted")
 		victim = null
 		currentgrab = null
 	if(wielded)
@@ -885,6 +886,7 @@ Inquisitorial armory down here
 		ADD_TRAIT(user, TRAIT_NOSTRUGGLE, TRAIT_GENERIC)
 		ADD_TRAIT(target, TRAIT_GARROTED, TRAIT_GENERIC)
 		ADD_TRAIT(target, TRAIT_MUTE, "garroteCordage")
+		target.throw_alert("garroted", /atom/movable/screen/alert/restrained/garroted, new_master = src)
 		if(target != user)
 			user.start_pulling(target, state = 1, supress_message = TRUE, item_override = src)
 		user.visible_message(span_danger("[user] wraps the [src] around [target]'s throat!"))

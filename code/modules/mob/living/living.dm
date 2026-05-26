@@ -670,6 +670,7 @@
 				else
 					REMOVE_TRAIT(M, TRAIT_MUTE, "garroteCordage")
 					REMOVE_TRAIT(M, TRAIT_GARROTED, TRAIT_GENERIC)
+					M.clear_alert("garroted")
 
 		if(forced) //if false, called by the grab item itself, no reason to drop it again
 			if(istype(get_active_held_item(), /obj/item/grabbing))
